@@ -1106,4 +1106,4 @@ export default function LandingPage({ setPage }) {
       </footer>
     </div>
   );
-} 
+}
