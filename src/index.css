@@ -448,3 +448,242 @@ body {
   flex-direction: column;
   background: transparent; /* ADD THIS */
 }
+/* ───────────────── MOBILE RESPONSIVE FIXES ───────────────── */
+
+html,
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+* {
+  min-width: 0;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+  body {
+    font-size: 14px;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .page-content {
+    padding: 14px;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    height: auto;
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .topbar-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* HERO */
+  .hero-section {
+    padding: 28px 18px;
+    border-radius: 18px;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-badge {
+    font-size: 0.62rem;
+    padding: 5px 10px;
+    margin-bottom: 14px;
+  }
+
+  .hero-h1 {
+    font-size: 2.5rem;
+    line-height: 0.95;
+    letter-spacing: -1.8px;
+    margin-bottom: 14px;
+  }
+
+  .hero-p {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    max-width: 100%;
+    margin-bottom: 22px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-hero-primary,
+  .btn-hero-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  .hero-metrics {
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 28px;
+    padding-top: 20px;
+  }
+
+  /* GRIDS */
+  .grid-2,
+  .grid-3,
+  .grid-auto,
+  .stats-row,
+  .service-grid,
+  .payment-grid,
+  .track-details-row,
+  .contact-grid,
+  .footer-grid,
+  .account-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* CARDS */
+  .feature-card,
+  .stat-card,
+  .quick-track,
+  .track-search-card,
+  .branch-card,
+  .contact-method,
+  .zone-card {
+    padding: 18px;
+  }
+
+  /* FORMS */
+  .frow {
+    grid-template-columns: 1fr;
+  }
+
+  .form-body {
+    padding: 18px;
+  }
+
+  .form-card-header {
+    padding: 18px;
+  }
+
+  .form-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .form-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* TABLE */
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .tbl {
+    min-width: 700px;
+  }
+
+  /* TRACK HEADER */
+  .track-result-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* FOOTER */
+  .footer {
+    padding: 40px 20px 24px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* SECTION */
+  .section {
+    padding: 36px 18px;
+  }
+
+  .section-title {
+    font-size: 1.7rem;
+  }
+
+  /* PAGE */
+  .page-title {
+    font-size: 1.8rem;
+  }
+
+  .page-desc {
+    font-size: 0.9rem;
+  }
+
+  /* QUICK TRACK */
+  .qt-row {
+    flex-direction: column;
+  }
+
+  /* CONFIRM */
+  .confirm-card {
+    padding: 30px 20px;
+  }
+
+  .confirm-tracking-id {
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+}
+
+/* EXTRA SMALL DEVICES */
+@media (max-width: 480px) {
+
+  .hero-h1 {
+    font-size: 2.1rem;
+  }
+
+  .hero-p {
+    font-size: 0.88rem;
+  }
+
+  .btn-hero-primary,
+  .btn-hero-secondary {
+    font-size: 0.85rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.45rem;
+  }
+
+  .hero-section {
+    padding: 24px 16px;
+  }
+}
