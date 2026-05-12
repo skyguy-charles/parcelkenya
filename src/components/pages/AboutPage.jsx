@@ -33,7 +33,7 @@ const CSS = `
     min-height: 100vh;
   }
 
-  /* NAV */
+  /* ── NAV ── */
   .ab-nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
@@ -50,9 +50,9 @@ const CSS = `
   .ab-nav-dot {
     width: 8px; height: 8px; border-radius: 50%;
     background: var(--gold); box-shadow: 0 0 12px var(--gold);
-    animation: pulse 2s ease-in-out infinite;
+    animation: abPulse 2s ease-in-out infinite;
   }
-  @keyframes pulse {
+  @keyframes abPulse {
     0%,100% { box-shadow: 0 0 8px var(--gold), 0 0 16px rgba(245,166,35,0.3); }
     50% { box-shadow: 0 0 16px var(--gold), 0 0 32px rgba(245,166,35,0.5); }
   }
@@ -61,6 +61,7 @@ const CSS = `
   }
   .ab-nav-links span { cursor: pointer; transition: color 0.2s; }
   .ab-nav-links span:hover, .ab-nav-links span.active { color: var(--white); }
+  .ab-nav-right { display: flex; gap: 12px; }
   .btn-ghost-nav {
     font-family: var(--sans); font-size: 0.82rem; font-weight: 500;
     color: var(--white70); background: none; border: 1px solid var(--border2);
@@ -74,12 +75,46 @@ const CSS = `
   }
   .btn-gold-sm:hover { background: var(--gold2); transform: translateY(-1px); }
 
+  /* Mobile hamburger */
+  .ab-hamburger {
+    display: none; flex-direction: column; gap: 5px;
+    background: none; border: none; cursor: pointer; padding: 6px;
+    border-radius: 8px; transition: background 0.15s;
+  }
+  .ab-hamburger:hover { background: var(--white08); }
+  .ab-hamburger span {
+    display: block; width: 20px; height: 2px;
+    background: rgba(255,255,255,0.7); border-radius: 2px;
+    transition: all 0.22s var(--ease); transform-origin: center;
+  }
+  .ab-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+  .ab-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .ab-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+  /* Mobile drawer */
+  .ab-mobile-menu {
+    display: none; position: fixed; top: 64px; left: 0; right: 0;
+    background: rgba(8,10,15,0.98); backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border2); z-index: 99;
+    padding: 20px 24px 28px; flex-direction: column; gap: 0;
+  }
+  .ab-mobile-menu.open { display: flex; }
+  .ab-mobile-link {
+    font-size: 0.95rem; color: var(--white70);
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: color 0.2s;
+  }
+  .ab-mobile-link:hover { color: var(--white); }
+  .ab-mobile-link.active { color: var(--white); }
+  .ab-mobile-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .ab-mobile-actions button { flex: 1; }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(28px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* HERO */
+  /* ── HERO ── */
   .ab-hero {
     position: relative; padding: 160px 80px 100px;
     overflow: hidden;
@@ -106,7 +141,7 @@ const CSS = `
   }
   .ab-hero-h1 {
     font-family: var(--display);
-    font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+    font-size: clamp(2.4rem, 5.5vw, 4.5rem);
     font-weight: 800; letter-spacing: -2px; line-height: 1.05;
     color: var(--white); max-width: 700px;
     animation: fadeUp 0.7s 0.1s var(--ease) both;
@@ -123,7 +158,7 @@ const CSS = `
     animation: fadeUp 0.7s 0.2s var(--ease) both;
   }
 
-  /* STORY */
+  /* ── STORY ── */
   .ab-story {
     background: var(--bg2);
     border-top: 1px solid var(--border);
@@ -159,9 +194,7 @@ const CSS = `
   .ab-story-para {
     font-size: 1rem; line-height: 1.9; color: var(--white70); font-weight: 300;
   }
-  .ab-story-para strong {
-    color: var(--white); font-weight: 500;
-  }
+  .ab-story-para strong { color: var(--white); font-weight: 500; }
   .ab-story-quote {
     border-left: 3px solid var(--gold);
     padding: 20px 28px;
@@ -174,23 +207,16 @@ const CSS = `
     margin-bottom: 12px;
   }
   .ab-story-quote-attr {
-    font-size: 0.78rem; color: var(--white40); font-family: var(--mono);
-    letter-spacing: 0.5px;
+    font-size: 0.78rem; color: var(--white40); font-family: var(--mono); letter-spacing: 0.5px;
   }
 
-  /* FOUNDERS */
-  .ab-founders {
-    padding: 100px 80px;
-    background: var(--bg);
-  }
+  /* ── FOUNDERS ── */
+  .ab-founders { padding: 100px 80px; background: var(--bg); }
   .ab-founders-inner { max-width: 1200px; margin: 0 auto; }
   .ab-founders-header { margin-bottom: 64px; }
-  .ab-founders-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
-  }
+  .ab-founders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
   .ab-founder-card {
-    background: var(--surface);
-    border: 1px solid var(--border2);
+    background: var(--surface); border: 1px solid var(--border2);
     border-radius: 24px; overflow: hidden;
     transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
   }
@@ -205,18 +231,15 @@ const CSS = `
   .ab-founder-avatar {
     width: 80px; height: 80px; border-radius: 20px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--display); font-size: 1.8rem; font-weight: 800;
-    letter-spacing: -1px;
+    font-family: var(--display); font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;
   }
   .ab-founder-avatar.gold {
     background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(245,166,35,0.08));
-    border: 1px solid rgba(245,166,35,0.3);
-    color: var(--gold);
+    border: 1px solid rgba(245,166,35,0.3); color: var(--gold);
   }
   .ab-founder-avatar.sage {
     background: linear-gradient(135deg, rgba(94,196,161,0.2), rgba(94,196,161,0.08));
-    border: 1px solid rgba(94,196,161,0.3);
-    color: var(--sage);
+    border: 1px solid rgba(94,196,161,0.3); color: var(--sage);
   }
   .ab-founder-name {
     font-family: var(--display); font-size: 1.4rem; font-weight: 800;
@@ -228,21 +251,16 @@ const CSS = `
   }
   .ab-founder-tagline { font-size: 0.85rem; color: var(--white40); line-height: 1.6; }
   .ab-founder-body {
-    padding: 0 40px 40px;
+    padding: 28px 40px 40px;
     border-top: 1px solid var(--border);
-    margin-top: 4px;
-    padding-top: 28px;
   }
   .ab-founder-bio {
     font-size: 0.88rem; line-height: 1.8; color: var(--white70); font-weight: 300;
     margin-bottom: 24px;
   }
-  .ab-founder-stats {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-  }
+  .ab-founder-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .ab-founder-stat {
-    background: var(--bg2);
-    border: 1px solid var(--border);
+    background: var(--bg2); border: 1px solid var(--border);
     border-radius: 12px; padding: 14px 16px;
   }
   .ab-founder-stat-val {
@@ -253,16 +271,15 @@ const CSS = `
     font-size: 0.72rem; color: var(--white40); font-family: var(--mono); letter-spacing: 0.5px;
   }
 
-  /* TIMELINE */
+  /* ── TIMELINE ── */
   .ab-timeline {
     background: var(--surface);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
     padding: 100px 80px;
   }
   .ab-timeline-inner { max-width: 1200px; margin: 0 auto; }
   .ab-timeline-header { margin-bottom: 64px; }
-  .ab-timeline-list { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .ab-timeline-list { display: flex; flex-direction: column; position: relative; }
   .ab-timeline-list::before {
     content: ''; position: absolute; left: 28px; top: 0; bottom: 0; width: 1px;
     background: linear-gradient(to bottom, transparent, var(--border2) 10%, var(--border2) 90%, transparent);
@@ -295,20 +312,15 @@ const CSS = `
   }
   .ab-timeline-desc { font-size: 0.85rem; color: var(--white40); line-height: 1.7; }
 
-  /* VALUES */
-  .ab-values {
-    padding: 100px 80px; background: var(--bg);
-  }
+  /* ── VALUES ── */
+  .ab-values { padding: 100px 80px; background: var(--bg); }
   .ab-values-inner { max-width: 1200px; margin: 0 auto; }
   .ab-values-header { margin-bottom: 56px; }
   .ab-values-grid {
     display: grid; grid-template-columns: repeat(3,1fr); gap: 1px;
     background: var(--border); border: 1px solid var(--border); border-radius: 20px; overflow: hidden;
   }
-  .ab-value-card {
-    background: var(--bg2); padding: 36px 32px;
-    transition: background 0.3s;
-  }
+  .ab-value-card { background: var(--bg2); padding: 36px 32px; transition: background 0.3s; }
   .ab-value-card:hover { background: var(--surface); }
   .ab-value-icon { font-size: 1.8rem; margin-bottom: 20px; display: block; }
   .ab-value-title {
@@ -317,13 +329,11 @@ const CSS = `
   }
   .ab-value-desc { font-size: 0.82rem; color: var(--white40); line-height: 1.7; }
 
-  /* CTA */
+  /* ── CTA ── */
   .ab-cta {
-    padding: 100px 80px;
-    background: var(--bg2);
+    padding: 100px 80px; background: var(--bg2);
     border-top: 1px solid var(--border);
-    text-align: center;
-    position: relative; overflow: hidden;
+    text-align: center; position: relative; overflow: hidden;
   }
   .ab-cta-orb {
     position: absolute; width: 500px; height: 500px; border-radius: 50%;
@@ -333,7 +343,7 @@ const CSS = `
   }
   .ab-cta-inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
   .ab-cta-title {
-    font-family: var(--display); font-size: clamp(2rem, 4vw, 3rem);
+    font-family: var(--display); font-size: clamp(1.8rem, 4vw, 3rem);
     font-weight: 800; letter-spacing: -1px; color: var(--white); margin-bottom: 16px;
   }
   .ab-cta-sub { font-size: 0.95rem; color: var(--white40); line-height: 1.8; margin-bottom: 40px; }
@@ -345,7 +355,7 @@ const CSS = `
     transition: all 0.3s var(--ease);
     box-shadow: 0 8px 32px rgba(245,166,35,0.3);
   }
-  .btn-hero-primary:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 16px 48px rgba(245,166,35,0.4); }
+  .btn-hero-primary:hover { background: var(--gold2); transform: translateY(-2px); }
   .btn-hero-secondary {
     font-family: var(--sans); font-size: 0.95rem; font-weight: 500;
     color: var(--white70); background: var(--white08);
@@ -354,7 +364,7 @@ const CSS = `
   }
   .btn-hero-secondary:hover { color: var(--white); background: rgba(255,255,255,0.12); }
 
-  /* FOOTER */
+  /* ── FOOTER ── */
   .ab-footer {
     background: var(--bg); border-top: 1px solid var(--border);
     padding: 40px 80px;
@@ -372,42 +382,179 @@ const CSS = `
 
   .section-title {
     font-family: var(--display);
-    font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+    font-size: clamp(1.7rem, 3.5vw, 2.4rem);
     font-weight: 800; letter-spacing: -1px;
     color: var(--white); line-height: 1.1;
+  }
+
+  /* ══════════════════════════════════════════
+     MOBILE  ≤ 768px
+  ══════════════════════════════════════════ */
+  @media (max-width: 768px) {
+
+    /* ── Nav ── */
+    .ab-nav { padding: 0 20px; height: 58px; }
+    .ab-nav-links { display: none; }
+    .ab-nav-right  { display: none; }
+    .ab-hamburger  { display: flex; }
+
+    /* ── Hero ── */
+    .ab-hero { padding: 90px 20px 60px; }
+    .ab-hero-h1 { letter-spacing: -1.2px; }
+    .ab-hero-sub { font-size: 0.95rem; }
+
+    /* ── Story ── */
+    .ab-story { padding: 64px 20px; }
+    .ab-story-inner {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+    .ab-story-left { position: static; }
+    .ab-story-title { font-size: 1.6rem; }
+    .ab-story-quote { padding: 16px 18px; }
+    .ab-story-quote-text { font-size: 1rem; }
+
+    /* ── Founders ── */
+    .ab-founders { padding: 64px 20px; }
+    .ab-founders-header { margin-bottom: 36px; }
+    .ab-founders-grid { grid-template-columns: 1fr; gap: 24px; }
+    .ab-founder-header {
+      padding: 24px 20px 20px;
+      flex-direction: column; /* avatar above text on tiny phones */
+      gap: 16px;
+    }
+    .ab-founder-avatar { width: 60px; height: 60px; font-size: 1.4rem; border-radius: 14px; }
+    .ab-founder-name { font-size: 1.2rem; }
+    .ab-founder-body { padding: 20px 20px 24px; }
+    .ab-founder-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .ab-founder-stat { padding: 10px 12px; }
+    .ab-founder-stat-val { font-size: 1.1rem; }
+
+    /* ── Timeline ── */
+    .ab-timeline { padding: 64px 20px; }
+    .ab-timeline-header { margin-bottom: 36px; }
+    .ab-timeline-list::before { left: 18px; }
+    .ab-timeline-item { gap: 14px; padding: 24px 0; }
+    .ab-timeline-dot-wrap { width: 36px; }
+    .ab-timeline-dot { width: 12px; height: 12px; }
+    .ab-timeline-year { width: 64px; font-size: 0.66rem; }
+    .ab-timeline-title { font-size: 0.95rem; }
+    .ab-timeline-desc { font-size: 0.82rem; }
+
+    /* ── Values ── */
+    .ab-values { padding: 64px 20px; }
+    .ab-values-header { margin-bottom: 36px; }
+    .ab-values-grid {
+      grid-template-columns: 1fr;
+      border-radius: 16px;
+    }
+    .ab-value-card { padding: 24px 20px; }
+
+    /* ── CTA ── */
+    .ab-cta { padding: 64px 20px; }
+    .ab-cta-actions { flex-direction: column; align-items: stretch; }
+    .ab-cta-actions button { text-align: center; }
+
+    /* ── Footer ── */
+    .ab-footer {
+      padding: 32px 20px;
+      flex-direction: column; align-items: flex-start; gap: 20px;
+    }
+    .ab-footer-links { flex-wrap: wrap; gap: 16px; }
+  }
+
+  /* ── Very small phones ── */
+  @media (max-width: 420px) {
+    .ab-founder-header { flex-direction: column; }
+    .ab-story-quote-text { font-size: 0.95rem; }
+    .ab-timeline-year { display: none; } /* year shown in title on tiny screens */
+  }
+
+  /* ── Tablet 769–1024px ── */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .ab-nav { padding: 0 32px; }
+    .ab-hero { padding: 120px 40px 80px; }
+    .ab-story { padding: 80px 40px; }
+    .ab-story-inner { gap: 48px; }
+    .ab-story-title { font-size: 1.8rem; }
+    .ab-founders { padding: 80px 40px; }
+    .ab-founders-grid { grid-template-columns: 1fr; gap: 28px; }
+    .ab-founder-header { padding: 28px 28px 20px; }
+    .ab-founder-body { padding: 20px 28px 28px; }
+    .ab-timeline { padding: 80px 40px; }
+    .ab-values { padding: 80px 40px; }
+    .ab-values-grid { grid-template-columns: repeat(2,1fr); }
+    .ab-cta { padding: 80px 40px; }
+    .ab-footer { padding: 36px 40px; }
   }
 `;
 
 export default function AboutPage({ setPage }) {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", h);
     return () => window.removeEventListener("scroll", h);
   }, []);
 
+  useEffect(() => {
+    if (menuOpen) {
+      const close = () => setMenuOpen(false);
+      window.addEventListener("scroll", close, { once: true });
+      return () => window.removeEventListener("scroll", close);
+    }
+  }, [menuOpen]);
+
+  const navTo = (pg) => { setMenuOpen(false); setPage(pg); };
+
   return (
     <div className="ab-page">
       <style>{CSS}</style>
 
-      {/* NAV */}
-      <nav className="ab-nav" style={{ background: scrolled ? "rgba(8,10,15,0.97)" : "rgba(8,10,15,0.85)", borderBottomColor: scrolled ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.07)" }}>
-        <div className="ab-nav-logo" onClick={() => setPage("home")}>
+      {/* ── NAV ── */}
+      <nav
+        className="ab-nav"
+        style={{
+          background: scrolled ? "rgba(8,10,15,0.97)" : "rgba(8,10,15,0.85)",
+          borderBottomColor: scrolled ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.07)"
+        }}
+      >
+        <div className="ab-nav-logo" onClick={() => navTo("home")}>
           <div className="ab-nav-dot" />
           SpeedPak
         </div>
         <div className="ab-nav-links">
           {[["home","Home"],["services","Services"],["track","Track"],["about","About"]].map(([pg, lbl]) => (
-            <span key={pg} className={pg === "about" ? "active" : ""} onClick={() => setPage(pg)}>{lbl}</span>
+            <span key={pg} className={pg === "about" ? "active" : ""} onClick={() => navTo(pg)}>{lbl}</span>
           ))}
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
-          <button className="btn-ghost-nav" onClick={() => setPage("track")}>Track Parcel</button>
-          <button className="btn-gold-sm" onClick={() => setPage("book")}>Send Now →</button>
+        <div className="ab-nav-right">
+          <button className="btn-ghost-nav" onClick={() => navTo("track")}>Track Parcel</button>
+          <button className="btn-gold-sm" onClick={() => navTo("book")}>Send Now →</button>
         </div>
+        <button
+          className={`ab-hamburger${menuOpen ? " open" : ""}`}
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label="Menu"
+        >
+          <span/><span/><span/>
+        </button>
       </nav>
 
-      {/* HERO */}
+      {/* Mobile drawer */}
+      <div className={`ab-mobile-menu${menuOpen ? " open" : ""}`}>
+        {[["home","Home"],["services","Services"],["track","Track"],["about","About"]].map(([pg,lbl]) => (
+          <div key={pg} className={`ab-mobile-link${pg==="about"?" active":""}`} onClick={() => navTo(pg)}>{lbl}</div>
+        ))}
+        <div className="ab-mobile-actions">
+          <button className="btn-ghost-nav" onClick={() => navTo("track")}>Track Parcel</button>
+          <button className="btn-gold-sm"   onClick={() => navTo("book")}>Send Now →</button>
+        </div>
+      </div>
+
+      {/* ── HERO ── */}
       <section className="ab-hero">
         <div className="ab-hero-bg" />
         <div className="ab-hero-orb" />
@@ -422,7 +569,7 @@ export default function AboutPage({ setPage }) {
         </div>
       </section>
 
-      {/* STORY */}
+      {/* ── STORY ── */}
       <section className="ab-story">
         <div className="ab-story-inner">
           <div className="ab-story-left">
@@ -456,7 +603,7 @@ export default function AboutPage({ setPage }) {
         </div>
       </section>
 
-      {/* FOUNDERS */}
+      {/* ── FOUNDERS ── */}
       <section className="ab-founders">
         <div className="ab-founders-inner">
           <div className="ab-founders-header">
@@ -464,59 +611,49 @@ export default function AboutPage({ setPage }) {
             <h2 className="section-title">Meet Michael & Charles</h2>
           </div>
           <div className="ab-founders-grid">
-            {/* MICHAEL */}
-            <div className="ab-founder-card">
-              <div className="ab-founder-header">
-                <div className="ab-founder-avatar gold">MK</div>
-                <div>
-                  <div className="ab-founder-name">Michael KYALO</div>
-                  <div className="ab-founder-role">Co-Founder & CTD</div>
-                  <div className="ab-founder-tagline">Operations, growth, and the relentless belief that logistics in Kenya can be world-class.</div>
+            {[
+              {
+                initials:"MK", cls:"gold",
+                name:"Michael KYALO", role:"Co-Founder & CTD",
+                tagline:"Operations, growth, and the relentless belief that logistics in Kenya can be world-class.",
+                bio:"Michael studied Business Administration at the University of Nairobi before spending four years scaling operations for a pan-African FMCG distributor. His obsession is simple: make every delivery feel effortless — for the sender, the rider, and the recipient. Outside of SpeedPak, he mentors young entrepreneurs through the Nairobi Startup Garage and is an avid marathon runner (he's completed the Lewa Marathon twice).",
+                stats:[{v:"5+",l:"Years in logistics"},{v:"47",l:"Counties led"},{v:"200K+",l:"Deliveries overseen"},{v:"2×",l:"Lewa Marathon finisher"}]
+              },
+              {
+                initials:"CO", cls:"sage",
+                name:"Charles MWANGI", role:"Co-Founder & CEO",
+                tagline:"The engineer who built the spine of SpeedPak — real-time tracking, rider apps, and the API powering 1,200+ businesses.",
+                bio:"Charles holds a Computer Science degree from Strathmore University and sharpened his skills building freight management systems for East Africa's largest logistics firm. He architected SpeedPak's entire tech stack from scratch — the rider app, the real-time tracking infrastructure, and the business API. He is a vocal advocate for open-source tech in Africa and regularly speaks at Nairobi Dev Con. In his rare downtime, he brews his own coffee and maintains a thriving kitchen garden in Kiambu.",
+                stats:[{v:"8+",l:"Years in software"},{v:"3",l:"Patents filed"},{v:"1.2M+",l:"Deliveries tracked"},{v:"99.9%",l:"Platform uptime"}]
+              }
+            ].map(f => (
+              <div className="ab-founder-card" key={f.name}>
+                <div className="ab-founder-header">
+                  <div className={`ab-founder-avatar ${f.cls}`}>{f.initials}</div>
+                  <div>
+                    <div className="ab-founder-name">{f.name}</div>
+                    <div className="ab-founder-role">{f.role}</div>
+                    <div className="ab-founder-tagline">{f.tagline}</div>
+                  </div>
+                </div>
+                <div className="ab-founder-body">
+                  <p className="ab-founder-bio">{f.bio}</p>
+                  <div className="ab-founder-stats">
+                    {f.stats.map(s => (
+                      <div className="ab-founder-stat" key={s.l}>
+                        <div className="ab-founder-stat-val">{s.v}</div>
+                        <div className="ab-founder-stat-lbl">{s.l}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="ab-founder-body">
-                <p className="ab-founder-bio">
-                  Michael studied Business Administration at the University of Nairobi before spending four years scaling operations for a pan-African FMCG distributor. His obsession is simple: make every delivery feel effortless — for the sender, the rider, and the recipient. Outside of SpeedPak, he mentors young entrepreneurs through the Nairobi Startup Garage and is an avid marathon runner (he's completed the Lewa Marathon twice).
-                </p>
-                <div className="ab-founder-stats">
-                  {[{v:"5+", l:"Years in logistics"},{v:"47", l:"Counties led"},{v:"200K+", l:"Deliveries overseen"},{v:"2×", l:"Lewa Marathon finisher"}].map(s => (
-                    <div className="ab-founder-stat" key={s.l}>
-                      <div className="ab-founder-stat-val">{s.v}</div>
-                      <div className="ab-founder-stat-lbl">{s.l}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            {/* CHARLES */}
-            <div className="ab-founder-card">
-              <div className="ab-founder-header">
-                <div className="ab-founder-avatar sage">CO</div>
-                <div>
-                  <div className="ab-founder-name">Charles MWANGI</div>
-                  <div className="ab-founder-role">Co-Founder & CEO</div>
-                  <div className="ab-founder-tagline">The engineer who built the spine of SpeedPak — real-time tracking, rider apps, and the API powering 1,200+ businesses.</div>
-                </div>
-              </div>
-              <div className="ab-founder-body">
-                <p className="ab-founder-bio">
-                  Charles holds a Computer Science degree from Strathmore University and sharpened his skills building freight management systems for East Africa's largest logistics firm. He architected SpeedPak's entire tech stack from scratch — the rider app, the real-time tracking infrastructure, and the business API. He is a vocal advocate for open-source tech in Africa and regularly speaks at Nairobi Dev Con. In his rare downtime, he brews his own coffee and maintains a thriving kitchen garden in Kiambu.
-                </p>
-                <div className="ab-founder-stats">
-                  {[{v:"8+", l:"Years in software"},{v:"3", l:"Patents filed"},{v:"1.2M+", l:"Deliveries tracked"},{v:"99.9%", l:"Platform uptime"}].map(s => (
-                    <div className="ab-founder-stat" key={s.l}>
-                      <div className="ab-founder-stat-val">{s.v}</div>
-                      <div className="ab-founder-stat-lbl">{s.l}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* TIMELINE */}
+      {/* ── TIMELINE ── */}
       <section className="ab-timeline">
         <div className="ab-timeline-inner">
           <div className="ab-timeline-header">
@@ -525,14 +662,14 @@ export default function AboutPage({ setPage }) {
           </div>
           <div className="ab-timeline-list">
             {[
-              { year: "2019", title: "The idea", desc: "Michael and Charles sketch the first version of SpeedPak on a napkin at Java House, Westlands. The frustration is real; the solution starts forming." },
-              { year: "Jan 2020", title: "6 riders, 1 WhatsApp group", desc: "SpeedPak launches with 6 trusted boda boda riders across Nairobi. Orders tracked on a Google Sheet. First 100 deliveries completed in 3 weeks." },
-              { year: "Aug 2020", title: "First tech release", desc: "Charles ships the v1 rider app — basic GPS ping every 5 minutes, automatic SMS to customers. Game-changer. Rider count hits 200." },
-              { year: "2021", title: "Series A — KSh 180M raised", desc: "First institutional funding round led by Savannah Fund and two angel investors. Expansion to Mombasa, Kisumu, and Nakuru begins." },
-              { year: "2022", title: "All 47 counties reached", desc: "SpeedPak becomes the first tech-enabled courier with confirmed coverage across every county in Kenya, including Mandera and Turkana." },
-              { year: "2023", title: "1 million deliveries milestone", desc: "The platform processes its 1,000,000th delivery. Real-time tracking now updates every 30 seconds. Business API launches with 1,200+ integrations." },
-              { year: "2024", title: "SpeedPak for Business", desc: "Launch of volume pricing, SLA guarantees, and dedicated account management for enterprise clients. 47 active riders online 24/7." },
-              { year: "2025", title: "Today", desc: "1.2 million deliveries and counting. 98.4% on-time rate. Expanding into Uganda and Tanzania — but Kenya always first." },
+              { year:"2019",     title:"The idea",                   desc:"Michael and Charles sketch the first version of SpeedPak on a napkin at Java House, Westlands. The frustration is real; the solution starts forming." },
+              { year:"Jan 2020", title:"6 riders, 1 WhatsApp group", desc:"SpeedPak launches with 6 trusted boda boda riders across Nairobi. Orders tracked on a Google Sheet. First 100 deliveries completed in 3 weeks." },
+              { year:"Aug 2020", title:"First tech release",          desc:"Charles ships the v1 rider app — basic GPS ping every 5 minutes, automatic SMS to customers. Game-changer. Rider count hits 200." },
+              { year:"2021",     title:"Series A — KSh 180M raised", desc:"First institutional funding round led by Savannah Fund and two angel investors. Expansion to Mombasa, Kisumu, and Nakuru begins." },
+              { year:"2022",     title:"All 47 counties reached",     desc:"SpeedPak becomes the first tech-enabled courier with confirmed coverage across every county in Kenya, including Mandera and Turkana." },
+              { year:"2023",     title:"1 million deliveries",        desc:"The platform processes its 1,000,000th delivery. Real-time tracking now updates every 30 seconds. Business API launches with 1,200+ integrations." },
+              { year:"2024",     title:"SpeedPak for Business",       desc:"Launch of volume pricing, SLA guarantees, and dedicated account management for enterprise clients. 47 active riders online 24/7." },
+              { year:"2025",     title:"Today",                       desc:"1.2 million deliveries and counting. 98.4% on-time rate. Expanding into Uganda and Tanzania — but Kenya always first." },
             ].map(t => (
               <div className="ab-timeline-item" key={t.year}>
                 <div className="ab-timeline-dot-wrap">
@@ -549,7 +686,7 @@ export default function AboutPage({ setPage }) {
         </div>
       </section>
 
-      {/* VALUES */}
+      {/* ── VALUES ── */}
       <section className="ab-values">
         <div className="ab-values-inner">
           <div className="ab-values-header">
@@ -558,12 +695,12 @@ export default function AboutPage({ setPage }) {
           </div>
           <div className="ab-values-grid">
             {[
-              { icon: "🎯", title: "Accountability first", desc: "Every parcel is someone's promise. We take that seriously — real-time tracking, digital proof, and no excuses when something goes wrong." },
-              { icon: "🤝", title: "Rider dignity", desc: "Our riders are our backbone. Fair pay, safety gear, transparent earnings, and a platform that respects their time and expertise." },
-              { icon: "🌍", title: "Built for Kenya", desc: "No copy-pasting from foreign logistics models. Our routing, pricing, and coverage are designed around how Kenya actually moves." },
-              { icon: "⚡", title: "Speed without shortcuts", desc: "Fast delivery never means reckless delivery. We optimise for both — and our 98.4% on-time rate proves the two aren't in conflict." },
-              { icon: "📱", title: "Technology that serves people", desc: "Every line of code Charles writes exists to make life easier for a rider in Kibera or a customer in Eldoret — not to impress investors." },
-              { icon: "🌱", title: "Long-term Kenya", desc: "We're not here for an exit. Michael and Charles are committed to building Kenya's logistics backbone for the next 20 years." },
+              { icon:"🎯", title:"Accountability first",       desc:"Every parcel is someone's promise. We take that seriously — real-time tracking, digital proof, and no excuses when something goes wrong." },
+              { icon:"🤝", title:"Rider dignity",              desc:"Our riders are our backbone. Fair pay, safety gear, transparent earnings, and a platform that respects their time and expertise." },
+              { icon:"🌍", title:"Built for Kenya",            desc:"No copy-pasting from foreign logistics models. Our routing, pricing, and coverage are designed around how Kenya actually moves." },
+              { icon:"⚡", title:"Speed without shortcuts",    desc:"Fast delivery never means reckless delivery. We optimise for both — and our 98.4% on-time rate proves the two aren't in conflict." },
+              { icon:"📱", title:"Technology that serves people", desc:"Every line of code Charles writes exists to make life easier for a rider in Kibera or a customer in Eldoret — not to impress investors." },
+              { icon:"🌱", title:"Long-term Kenya",            desc:"We're not here for an exit. Michael and Charles are committed to building Kenya's logistics backbone for the next 20 years." },
             ].map(v => (
               <div className="ab-value-card" key={v.title}>
                 <span className="ab-value-icon">{v.icon}</span>
@@ -575,7 +712,7 @@ export default function AboutPage({ setPage }) {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ── CTA ── */}
       <section className="ab-cta">
         <div className="ab-cta-orb" />
         <div className="ab-cta-inner">
@@ -583,21 +720,21 @@ export default function AboutPage({ setPage }) {
           <h2 className="ab-cta-title">Let's move Kenya forward — together.</h2>
           <p className="ab-cta-sub">Whether you're sending a single parcel or integrating SpeedPak into your business — we'd love to have you on board.</p>
           <div className="ab-cta-actions">
-            <button className="btn-hero-primary" onClick={() => setPage("book")}>Send a Parcel →</button>
-            <button className="btn-hero-secondary" onClick={() => setPage("contact")}>Get in Touch</button>
+            <button className="btn-hero-primary" onClick={() => navTo("book")}>Send a Parcel →</button>
+            <button className="btn-hero-secondary" onClick={() => navTo("contact")}>Get in Touch</button>
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
+      {/* ── FOOTER ── */}
       <footer className="ab-footer">
         <div className="ab-footer-brand">
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--gold)", boxShadow: "0 0 12px var(--gold)" }} />
+          <div style={{ width:8, height:8, borderRadius:"50%", background:"var(--gold)", boxShadow:"0 0 12px var(--gold)" }} />
           SpeedPak
         </div>
         <div className="ab-footer-links">
           {["Home","Services","Track","About","Careers","Contact"].map(l => (
-            <span key={l} onClick={() => setPage(l.toLowerCase())}>{l}</span>
+            <span key={l} onClick={() => navTo(l.toLowerCase())}>{l}</span>
           ))}
         </div>
         <div className="ab-footer-copy">© 2025 SpeedPak Kenya · All 47 Counties</div>

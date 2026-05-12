@@ -21,9 +21,6 @@ function useCounter(target, duration = 2000, suffix = "") {
   return val;
 }
 
-/* ─────────────────────────────────────────────
-   ANIMATED COUNTER DISPLAY
-───────────────────────────────────────────── */
 function Counter({ target, suffix, prefix }) {
   const val = useCounter(target, 2200);
   const display = Number.isInteger(parseFloat(target))
@@ -72,7 +69,7 @@ const CSS = `
   }
   .lp-h2 {
     font-family: var(--disp);
-    font-size: clamp(1.9rem, 3.2vw, 2.8rem);
+    font-size: clamp(1.7rem, 5vw, 2.8rem);
     font-weight: 800; letter-spacing: -1.2px; line-height: 1.08;
     color: var(--w);
   }
@@ -131,6 +128,39 @@ const CSS = `
   .lp-nav-links span:hover { color: var(--w); }
   .lp-nav-links span.active { color: var(--w); }
   .lp-nav-right { display: flex; gap: 10px; flex-shrink: 0; }
+
+  /* Mobile hamburger */
+  .lp-nav-hamburger {
+    display: none; flex-direction: column; gap: 5px; cursor: pointer;
+    padding: 6px; margin-left: auto;
+    background: none; border: none;
+  }
+  .lp-nav-hamburger span {
+    display: block; width: 22px; height: 2px;
+    background: var(--w70); border-radius: 2px;
+    transition: all .25s var(--ease);
+  }
+  .lp-nav-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .lp-nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .lp-nav-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+  /* Mobile menu drawer */
+  .lp-mobile-menu {
+    display: none; position: fixed; top: 64px; left: 0; right: 0;
+    background: rgba(8,10,15,.98); backdrop-filter: blur(28px);
+    border-bottom: 1px solid var(--bord2); z-index: 199;
+    padding: 20px 24px 28px; flex-direction: column; gap: 0;
+  }
+  .lp-mobile-menu.open { display: flex; }
+  .lp-mobile-menu-link {
+    font-size: .95rem; color: var(--w70); padding: 14px 0;
+    border-bottom: 1px solid var(--border); cursor: pointer;
+    transition: color .2s; font-family: var(--sans);
+  }
+  .lp-mobile-menu-link:hover { color: var(--w); }
+  .lp-mobile-menu-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .lp-mobile-menu-actions button { flex: 1; }
+
   .btn-ghost {
     font-family: var(--sans); font-size: .82rem; font-weight: 500; cursor: pointer;
     color: var(--w70); background: transparent;
@@ -190,7 +220,6 @@ const CSS = `
     background: radial-gradient(circle, rgba(94,196,161,.07) 0%, transparent 70%);
     bottom: -80px; left: -100px; filter: blur(80px);
   }
-  /* left copy */
   .lp-hero-copy { position: relative; z-index: 2; }
   .lp-hero-badge {
     display: inline-flex; align-items: center; gap: 8px;
@@ -203,7 +232,7 @@ const CSS = `
   .lp-hero-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); animation: pulse 2s ease-in-out infinite; }
   .lp-hero-h1 {
     font-family: var(--disp);
-    font-size: clamp(3rem, 5.2vw, 5rem);
+    font-size: clamp(2.6rem, 5.2vw, 5rem);
     font-weight: 800; letter-spacing: -2.5px; line-height: 1.0; color: var(--w);
     margin-bottom: 24px;
     animation: fadeUp .8s .1s var(--ease) both;
@@ -224,9 +253,7 @@ const CSS = `
     font-size: .78rem; color: var(--w40); font-family: var(--mono); letter-spacing: .5px;
     animation: fadeUp .8s .4s var(--ease) both;
   }
-  .lp-hero-trust-faces {
-    display: flex;
-  }
+  .lp-hero-trust-faces { display: flex; }
   .lp-hero-face {
     width: 28px; height: 28px; border-radius: 50%;
     border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center;
@@ -256,7 +283,6 @@ const CSS = `
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
     pointer-events: none;
   }
-  /* Card base */
   .lp-fc {
     position: absolute; background: var(--surface);
     border: 1px solid var(--bord2); border-radius: 18px; padding: 18px 20px;
@@ -264,7 +290,6 @@ const CSS = `
     transition: transform .3s var(--ease);
   }
   .lp-fc:hover { transform: scale(1.04) translateY(-6px) !important; z-index: 20 !important; }
-  /* Card positions */
   .lp-fc-main {
     width: 290px; top: 50%; left: 50%;
     transform: translate(-50%,-50%) rotate(-2deg);
@@ -290,7 +315,6 @@ const CSS = `
   @keyframes fcRider  { 0%,100%{transform:rotate(-3deg) translateY(0)}  50%{transform:rotate(-2deg) translateY(-11px)} }
   @keyframes fcNotif  { 0%,100%{transform:rotate(2deg) translateY(0)}   50%{transform:rotate(1deg) translateY(-22px)} }
 
-  /* Card internals */
   .fc-row { display:flex; align-items:center; justify-content:space-between; }
   .fc-id { font-family:var(--mono); font-size:.66rem; letter-spacing:1px; color:var(--w40); }
   .fc-pill {
@@ -313,7 +337,6 @@ const CSS = `
   .fc-progress-fill  { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--gold),var(--gold2)); animation:pfill 2.2s 1s var(--ease) both; }
   @keyframes pfill { from{width:0} }
   .fc-progress-lbls { display:flex; justify-content:space-between; margin-top:5px; font-family:var(--mono); font-size:.58rem; color:var(--w20); }
-  /* rider avatar */
   .fc-avatar {
     width:32px; height:32px; border-radius:9px; flex-shrink:0;
     background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(245,166,35,.07));
@@ -323,7 +346,6 @@ const CSS = `
   }
   .fc-name  { font-size:.76rem; font-weight:500; color:var(--w); }
   .fc-sub   { font-size:.66rem; color:var(--w40); margin-top:1px; }
-  /* notif icon */
   .fc-notif-icon {
     width:26px; height:26px; border-radius:7px; flex-shrink:0;
     background:rgba(94,196,161,.1); border:1px solid rgba(94,196,161,.2);
@@ -339,7 +361,7 @@ const CSS = `
   }
   .lp-ticker::before,
   .lp-ticker::after {
-    content:''; position:absolute; top:0; bottom:0; width:120px; z-index:2; pointer-events:none;
+    content:''; position:absolute; top:0; bottom:0; width:80px; z-index:2; pointer-events:none;
   }
   .lp-ticker::before { left:0;  background:linear-gradient(to right, var(--bg2), transparent); }
   .lp-ticker::after  { right:0; background:linear-gradient(to left,  var(--bg2), transparent); }
@@ -358,19 +380,14 @@ const CSS = `
   .lp-ticker-sep { color:var(--border); }
 
   /* ─────────── METRICS STRIP ─────────── */
-  .lp-metrics {
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-  }
+  .lp-metrics { border-bottom: 1px solid var(--border); background: var(--bg); }
   .lp-metrics-inner {
     display:grid; grid-template-columns:repeat(4,1fr);
     max-width:1200px; margin:0 auto;
   }
   .lp-metric {
-    padding:44px 36px;
-    border-right: 1px solid var(--border);
-    transition: background .25s;
-    cursor: default;
+    padding:44px 36px; border-right: 1px solid var(--border);
+    transition: background .25s; cursor: default;
   }
   .lp-metric:last-child { border-right:none; }
   .lp-metric:hover { background: var(--surface); }
@@ -386,10 +403,8 @@ const CSS = `
 
   /* ─────────── HOW IT WORKS ─────────── */
   .lp-how {
-    padding: 110px 0;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    position:relative; overflow:hidden;
+    padding: 110px 0; background: var(--bg2);
+    border-bottom: 1px solid var(--border); position:relative; overflow:hidden;
   }
   .lp-how-orb {
     position:absolute; width:600px; height:600px; border-radius:50%;
@@ -447,12 +462,9 @@ const CSS = `
   .lp-srv-tag   { display:inline-block; font-family:var(--mono); font-size:.66rem; letter-spacing:.5px; color:var(--gold); background:rgba(245,166,35,.08); border:1px solid rgba(245,166,35,.2); padding:4px 10px; border-radius:6px; }
 
   /* ─────────── TRACK CTA ─────────── */
-  .lp-track-belt {
-    padding:0 0 80px;
-    background:var(--bg);
-  }
+  .lp-track-belt { padding:0 0 80px; background:var(--bg); }
   .lp-track-card {
-    max-width:1200px; margin:0 auto 0;
+    max-width:1200px; margin:0 auto;
     background:linear-gradient(135deg,var(--surface),var(--sur2));
     border:1px solid var(--bord2); border-radius:22px; padding:44px 48px;
     position:relative; overflow:hidden;
@@ -462,12 +474,15 @@ const CSS = `
     background:radial-gradient(circle,rgba(245,166,35,.09) 0%,transparent 65%);
     right:-80px; top:-150px; pointer-events:none;
   }
-  .lp-track-inner { position:relative; z-index:1; display:grid; grid-template-columns:1fr auto; gap:40px; align-items:center; }
+  .lp-track-inner {
+    position:relative; z-index:1;
+    display:grid; grid-template-columns:1fr auto; gap:40px; align-items:center;
+  }
   .lp-track-title { font-family:var(--disp); font-size:1.5rem; font-weight:800; letter-spacing:-.6px; color:var(--w); margin-bottom:5px; }
   .lp-track-sub   { font-size:.85rem; color:var(--w40); }
-  .lp-track-row   { display:flex; gap:10px; align-items:center; margin-top:22px; }
+  .lp-track-row   { display:flex; gap:10px; align-items:center; margin-top:22px; flex-wrap: wrap; }
   .lp-track-wrap  {
-    flex:1; display:flex; align-items:center; gap:12px;
+    flex:1; min-width: 180px; display:flex; align-items:center; gap:12px;
     background:var(--bg); border:1px solid var(--bord2);
     border-radius:11px; padding:0 16px; height:52px;
     transition:border-color .2s, box-shadow .2s;
@@ -523,10 +538,7 @@ const CSS = `
     color:#000; background:var(--gold); padding:4px 16px;
     border-radius:0 0 10px 10px; white-space:nowrap;
   }
-  .lp-plan-name {
-    font-family:var(--disp); font-size:1rem; font-weight:700; letter-spacing:-.3px;
-    color:var(--w); margin-bottom:8px;
-  }
+  .lp-plan-name { font-family:var(--disp); font-size:1rem; font-weight:700; letter-spacing:-.3px; color:var(--w); margin-bottom:8px; }
   .lp-plan-desc { font-size:.8rem; color:var(--w40); line-height:1.65; margin-bottom:28px; }
   .lp-plan-price {
     font-family:var(--disp); font-size:2.6rem; font-weight:800; letter-spacing:-1.5px;
@@ -535,9 +547,7 @@ const CSS = `
   .lp-plan-price span { font-size:1rem; font-weight:400; color:var(--w40); letter-spacing:0; }
   .lp-plan-divider { height:1px; background:var(--border); margin:24px 0; }
   .lp-plan-features { display:flex; flex-direction:column; gap:10px; margin-bottom:32px; }
-  .lp-plan-feature {
-    display:flex; align-items:center; gap:10px; font-size:.82rem; color:var(--w70);
-  }
+  .lp-plan-feature { display:flex; align-items:center; gap:10px; font-size:.82rem; color:var(--w70); }
   .lp-plan-check {
     width:18px; height:18px; border-radius:5px; flex-shrink:0;
     display:flex; align-items:center; justify-content:center; font-size:10px;
@@ -591,7 +601,7 @@ const CSS = `
   }
   .lp-final-inner { position:relative; z-index:1; max-width:640px; margin:0 auto; }
   .lp-final-h2 {
-    font-family:var(--disp); font-size:clamp(2.2rem,4.5vw,3.6rem);
+    font-family:var(--disp); font-size:clamp(2rem,4.5vw,3.6rem);
     font-weight:800; letter-spacing:-1.5px; line-height:1.06; color:var(--w);
     margin:16px 0;
   }
@@ -634,9 +644,155 @@ const CSS = `
   .lp-footer-legal { display:flex; gap:20px; font-size:.73rem; color:var(--w20); font-family:var(--mono); }
   .lp-footer-legal span { cursor:pointer; transition:color .2s; }
   .lp-footer-legal span:hover { color:var(--w40); }
+
+  /* ══════════════════════════════════════════
+     MOBILE RESPONSIVE — ≤ 768px
+  ══════════════════════════════════════════ */
+  @media (max-width: 768px) {
+
+    /* ── NAV ── */
+    .lp-nav { padding: 0 20px; height: 58px; }
+    .lp-nav-links { display: none; }
+    .lp-nav-right  { display: none; }
+    .lp-nav-hamburger { display: flex; }
+
+    /* ── SHARED ── */
+    .lp-inner { padding: 0 20px; }
+
+    /* ── HERO ── */
+    .lp-hero {
+      grid-template-columns: 1fr;
+      padding: 90px 20px 60px;
+      gap: 0;
+      min-height: auto;
+    }
+    .lp-hero-h1 {
+      font-size: clamp(2.4rem, 10vw, 3.4rem);
+      letter-spacing: -1.5px;
+    }
+    .lp-hero-p { font-size: .95rem; }
+    .lp-hero-actions { flex-direction: column; align-items: stretch; }
+    .lp-hero-actions button { text-align: center; }
+    .btn-gold-lg, .btn-outline-lg { padding: 14px 24px; font-size: .92rem; }
+
+    /* Hide floating cards on mobile, show a simple status card instead */
+    .lp-hero-visual { display: none; }
+
+    /* Mobile hero visual replacement */
+    .lp-hero-mobile-card {
+      display: flex !important;
+      flex-direction: column; gap: 10px;
+      margin-top: 36px;
+      animation: fadeUp .8s .3s var(--ease) both;
+    }
+    .lp-hero-mobile-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 12px;
+      background: var(--surface); border: 1px solid var(--bord2);
+      font-family: var(--mono); font-size: .72rem; color: var(--w70);
+    }
+    .lp-hero-mobile-pill .fc-pill { font-size: .65rem; }
+
+    /* ── METRICS STRIP ── */
+    .lp-metrics-inner {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .lp-metric {
+      padding: 28px 20px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .lp-metric:nth-child(2) { border-right: none; }
+    .lp-metric:nth-child(3) { border-bottom: none; }
+    .lp-metric:nth-child(4) { border-right: none; border-bottom: none; }
+    .lp-metric-num { font-size: 1.9rem; }
+
+    /* ── HOW IT WORKS ── */
+    .lp-how { padding: 70px 0; }
+    .lp-how-header { margin-bottom: 44px; }
+    .lp-how-steps {
+      grid-template-columns: 1fr 1fr;
+      gap: 32px 0;
+    }
+    .lp-how-steps::before { display: none; }
+    .lp-step { padding: 0 20px; }
+
+    /* ── SERVICES ── */
+    .lp-services { padding: 70px 0; }
+    .lp-srv-grid { grid-template-columns: 1fr; }
+    .lp-srv { padding: 28px 24px; }
+
+    /* ── TRACK ── */
+    .lp-track-belt { padding: 0 0 60px; }
+    .lp-track-card { padding: 28px 20px; margin: 0 20px; border-radius: 16px; }
+    .lp-track-inner { grid-template-columns: 1fr; gap: 24px; }
+    .lp-track-row { flex-direction: column; align-items: stretch; }
+    .lp-track-wrap { min-width: unset; }
+
+    /* ── TESTIMONIALS ── */
+    .lp-testimonials { padding: 70px 0; }
+    .lp-testi-grid { grid-template-columns: 1fr; }
+
+    /* ── PRICING ── */
+    .lp-pricing { padding: 70px 0; }
+    .lp-pricing-grid { grid-template-columns: 1fr; }
+    .lp-plan.featured { order: -1; }
+
+    /* ── FAQ ── */
+    .lp-faq { padding: 70px 0; }
+    .lp-faq-q { font-size: .88rem; }
+
+    /* ── FINAL CTA ── */
+    .lp-final { padding: 80px 20px; }
+    .lp-final-actions { flex-direction: column; align-items: stretch; }
+    .lp-final-actions button { text-align: center; }
+
+    /* ── FOOTER ── */
+    .lp-footer { padding: 48px 20px 32px; }
+    .lp-footer-top {
+      grid-template-columns: 1fr 1fr;
+      gap: 36px 24px;
+    }
+    .lp-footer-top > div:first-child {
+      grid-column: 1 / -1;
+    }
+    .lp-footer-bottom {
+      flex-direction: column; align-items: flex-start; gap: 16px;
+    }
+    .lp-footer-legal { flex-wrap: wrap; gap: 12px; }
+  }
+
+  /* ── Very small phones ── */
+  @media (max-width: 420px) {
+    .lp-hero-h1 { font-size: 2.2rem; letter-spacing: -1px; }
+    .lp-how-steps { grid-template-columns: 1fr; }
+    .lp-footer-top { grid-template-columns: 1fr; }
+    .lp-hero-badge { font-size: .6rem; }
+  }
+
+  /* ── Tablet ── */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .lp-inner { padding: 0 32px; }
+    .lp-nav { padding: 0 32px; }
+    .lp-hero { padding: 100px 32px 80px; gap: 32px; }
+    .lp-cards-scene { width: 280px; height: 380px; transform: scale(0.88); }
+    .lp-metrics-inner { grid-template-columns: repeat(4,1fr); }
+    .lp-metric { padding: 32px 20px; }
+    .lp-how-steps { grid-template-columns: repeat(2,1fr); gap: 40px; }
+    .lp-how-steps::before { display: none; }
+    .lp-step { padding: 0 16px; }
+    .lp-srv-grid { grid-template-columns: repeat(2,1fr); }
+    .lp-testi-grid { grid-template-columns: 1fr; }
+    .lp-pricing-grid { grid-template-columns: 1fr; }
+    .lp-footer { padding: 48px 32px 32px; }
+    .lp-footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .lp-footer-top > div:first-child { grid-column: 1 / -1; }
+    .lp-track-card { padding: 32px; }
+    .lp-track-inner { gap: 24px; }
+  }
 `;
 
-/* ── Ticker items (duplicated for seamless loop) ── */
+/* ── Ticker items ── */
 const TICKER = [
   "SPK-009123 delivered to Kisumu",
   "SPK-009124 collected in Westlands",
@@ -649,7 +805,6 @@ const TICKER = [
   "SPK-009131 delivered to Garissa",
 ];
 
-/* ── FAQ data ── */
 const FAQS = [
   { q: "How long does countrywide delivery take?", a: "Standard delivery to all 47 counties takes 1–3 business days. Express same-day is available within Nairobi and major towns (Mombasa, Kisumu, Nakuru, Eldoret) with a guaranteed 6 pm cutoff." },
   { q: "How do I track my parcel?", a: "Every booking generates a unique SPK tracking ID. Enter it in the Track page or on our homepage, and you'll see live GPS status at every checkpoint. You'll also receive SMS and WhatsApp updates automatically." },
@@ -663,6 +818,7 @@ export default function LandingPage({ setPage }) {
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [trackVal, setTrackVal] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 24);
@@ -670,26 +826,56 @@ export default function LandingPage({ setPage }) {
     return () => window.removeEventListener("scroll", h);
   }, []);
 
+  // Close menu on scroll
+  useEffect(() => {
+    if (menuOpen) {
+      const h = () => setMenuOpen(false);
+      window.addEventListener("scroll", h, { once: true });
+      return () => window.removeEventListener("scroll", h);
+    }
+  }, [menuOpen]);
+
+  const navTo = (pg) => { setMenuOpen(false); setPage?.(pg); };
+
   return (
     <div className="lp">
       <style>{CSS}</style>
 
       {/* ── NAV ── */}
       <nav className={`lp-nav${scrolled ? " solid" : ""}`}>
-        <div className="lp-nav-logo" onClick={() => setPage?.("home")}>
+        <div className="lp-nav-logo" onClick={() => navTo("home")}>
           <div className="lp-nav-dot" />
           SpeedPak
         </div>
         <div className="lp-nav-links">
           {[["home","Home"],["services","Services"],["track","Track"],["pricing","Pricing"],["about","About"]].map(([pg,lbl]) => (
-            <span key={pg} onClick={() => setPage?.(pg)}>{lbl}</span>
+            <span key={pg} onClick={() => navTo(pg)}>{lbl}</span>
           ))}
         </div>
         <div className="lp-nav-right">
-          <button className="btn-ghost" onClick={() => setPage?.("track")}>Track Parcel</button>
-          <button className="btn-gold"  onClick={() => setPage?.("book")}>Send Now →</button>
+          <button className="btn-ghost" onClick={() => navTo("track")}>Track Parcel</button>
+          <button className="btn-gold"  onClick={() => navTo("book")}>Send Now →</button>
         </div>
+        {/* Hamburger */}
+        <button
+          className={`lp-nav-hamburger${menuOpen ? " open" : ""}`}
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label="Menu"
+        >
+          <span/><span/><span/>
+        </button>
       </nav>
+
+      {/* Mobile drawer */}
+      <div className={`lp-mobile-menu${menuOpen ? " open" : ""}`}>
+        {[["home","Home"],["services","Services"],["track","Track"],["pricing","Pricing"],["about","About"]].map(([pg,lbl]) => (
+          <div className="lp-mobile-menu-link" key={pg} onClick={() => navTo(pg)}>{lbl}</div>
+        ))}
+        <div className="lp-mobile-menu-actions">
+          <button className="btn-ghost" onClick={() => navTo("track")}>Track Parcel</button>
+          <button className="btn-gold"  onClick={() => navTo("book")}>Send Now →</button>
+        </div>
+      </div>
 
       {/* ── HERO ── */}
       <section className="lp-hero">
@@ -713,8 +899,8 @@ export default function LandingPage({ setPage }) {
             Real-time GPS tracking all the way to 47 counties — from Nairobi CBD to Mandera.
           </p>
           <div className="lp-hero-actions">
-            <button className="btn-gold-lg" onClick={() => setPage?.("book")}>Send a Parcel →</button>
-            <button className="btn-outline-lg" onClick={() => setPage?.("track")}>Track Existing</button>
+            <button className="btn-gold-lg" onClick={() => navTo("book")}>Send a Parcel →</button>
+            <button className="btn-outline-lg" onClick={() => navTo("track")}>Track Existing</button>
           </div>
           <div className="lp-hero-trust">
             <div className="lp-hero-trust-faces">
@@ -727,15 +913,30 @@ export default function LandingPage({ setPage }) {
               <div style={{marginTop:2}}>Trusted by 18,000+ customers</div>
             </div>
           </div>
+
+          {/* Mobile-only status cards (replaces floating card stack) */}
+          <div className="lp-hero-mobile-card" style={{display:"none"}}>
+            <div className="lp-hero-mobile-pill">
+              <span className="fc-pill fc-transit"><span className="fc-pill-dot"/>In Transit</span>
+              <span style={{marginLeft:6}}>SPK-009421 · Nairobi → Kisumu</span>
+            </div>
+            <div className="lp-hero-mobile-pill">
+              <span className="fc-pill fc-delivered"><span className="fc-pill-dot"/>Delivered</span>
+              <span style={{marginLeft:6}}>SPK-009399 · Mombasa ✓ 2:18 PM</span>
+            </div>
+            <div className="lp-hero-mobile-pill">
+              <span style={{fontSize:"1rem"}}>🏍️</span>
+              <span>James Mwangi · ⭐ 4.97 · 12 min away</span>
+            </div>
+          </div>
         </div>
 
-        {/* RIGHT — floating card stack */}
+        {/* RIGHT — floating card stack (desktop only) */}
         <div className="lp-hero-visual">
           <div className="lp-cards-scene">
             <div className="lp-glow-bg" />
             <div className="lp-dots-bg" />
 
-            {/* MAIN CARD */}
             <div className="lp-fc lp-fc-main">
               <div className="fc-row" style={{marginBottom:14}}>
                 <span className="fc-id">SPK-009421</span>
@@ -767,7 +968,6 @@ export default function LandingPage({ setPage }) {
               </div>
             </div>
 
-            {/* STATUS CHIP */}
             <div className="lp-fc lp-fc-status">
               <div className="fc-row" style={{marginBottom:10}}>
                 <span className="fc-id">SPK-009399</span>
@@ -780,7 +980,6 @@ export default function LandingPage({ setPage }) {
               </div>
             </div>
 
-            {/* RIDER CARD */}
             <div className="lp-fc lp-fc-rider">
               <div className="fc-label" style={{marginBottom:10}}>Your rider</div>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -797,7 +996,6 @@ export default function LandingPage({ setPage }) {
               </div>
             </div>
 
-            {/* NOTIF PILL */}
             <div className="lp-fc lp-fc-notif">
               <div style={{display:"flex",alignItems:"flex-start",gap:9}}>
                 <div className="fc-notif-icon">✅</div>
@@ -915,10 +1113,10 @@ export default function LandingPage({ setPage }) {
                       value={trackVal}
                       onChange={e => setTrackVal(e.target.value)}
                       placeholder="e.g. SPK-009421"
-                      onKeyDown={e => e.key === "Enter" && setPage?.("track")}
+                      onKeyDown={e => e.key === "Enter" && navTo("track")}
                     />
                   </div>
-                  <button className="btn-gold" style={{height:52,padding:"0 28px",fontSize:".9rem",borderRadius:11}} onClick={() => setPage?.("track")}>
+                  <button className="btn-gold" style={{height:52,padding:"0 28px",fontSize:".9rem",borderRadius:11,flexShrink:0}} onClick={() => navTo("track")}>
                     Track →
                   </button>
                 </div>
@@ -1022,7 +1220,7 @@ export default function LandingPage({ setPage }) {
                     </div>
                   ))}
                 </div>
-                <button className={`lp-plan-btn ${p.btn}`} onClick={() => setPage?.("book")}>
+                <button className={`lp-plan-btn ${p.btn}`} onClick={() => navTo("book")}>
                   {p.name === "Business" ? "Contact Sales →" : "Get started →"}
                 </button>
               </div>
@@ -1060,8 +1258,8 @@ export default function LandingPage({ setPage }) {
           <h2 className="lp-final-h2">Kenya delivered<br /><em>on time, every time.</em></h2>
           <p className="lp-final-sub">Join 18,000+ customers and businesses who trust SpeedPak to move their world. Book your first delivery in under 60 seconds.</p>
           <div className="lp-final-actions">
-            <button className="btn-gold-lg" onClick={() => setPage?.("book")}>Send a Parcel →</button>
-            <button className="btn-outline-lg" onClick={() => setPage?.("about")}>Our Story</button>
+            <button className="btn-gold-lg" onClick={() => navTo("book")}>Send a Parcel →</button>
+            <button className="btn-outline-lg" onClick={() => navTo("about")}>Our Story</button>
           </div>
           <div className="lp-final-note">No account needed · Free first-time booking support · Cancel anytime</div>
         </div>
@@ -1090,7 +1288,7 @@ export default function LandingPage({ setPage }) {
             <div key={col.title}>
               <div className="lp-footer-col-title">{col.title}</div>
               <div className="lp-footer-col-links">
-                {col.links.map(l => <div className="lp-footer-link" key={l} onClick={() => setPage?.(l.toLowerCase().replace(/ /g,"-"))}>{l}</div>)}
+                {col.links.map(l => <div className="lp-footer-link" key={l} onClick={() => navTo(l.toLowerCase().replace(/ /g,"-"))}>{l}</div>)}
               </div>
             </div>
           ))}

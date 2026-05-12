@@ -1,6 +1,8 @@
 // AppSidebar.jsx
-// All styles are inline or scoped via a unique [data-sp-sidebar] attribute selector
-// to prevent any leakage into the rest of the app.
+// Mobile-responsive: collapses to a slide-out drawer on small screens.
+// All styles inline or via a single injected <style> tag scoped to [data-sp-sidebar].
+
+import { useState, useEffect } from "react";
 
 const NAV_ICONS = {
   home: (
@@ -48,7 +50,6 @@ const NAV_ICONS = {
   ),
 };
 
-// All tokens
 const C = {
   bg: "#0e0e0e",
   border: "rgba(255,255,255,0.06)",
@@ -65,10 +66,122 @@ const C = {
   iconBg: "rgba(255,255,255,0.05)",
   badgeBg: "rgba(245,158,11,0.20)",
   divider: "rgba(255,255,255,0.05)",
+  overlay: "rgba(0,0,0,0.55)",
 };
 
+// Injected CSS for transitions & media queries (scoped)
+const SIDEBAR_CSS = `
+  @keyframes sp-slide-in  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+  @keyframes sp-slide-out { from { transform: translateX(0); }    to { transform: translateX(-100%); } }
+  @keyframes sp-fade-in   { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes sp-fade-out  { from { opacity: 1; } to { opacity: 0; } }
+
+  [data-sp-sidebar] {
+    transition: none;
+  }
+
+  /* Mobile top bar — shown only on mobile */
+  [data-sp-topbar] {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    background: #0e0e0e;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 300;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    box-sizing: border-box;
+  }
+
+  /* Overlay backdrop */
+  [data-sp-overlay] {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 298;
+    backdrop-filter: blur(2px);
+  }
+  [data-sp-overlay].visible { display: block; animation: sp-fade-in 0.2s ease both; }
+  [data-sp-overlay].hiding  { display: block; animation: sp-fade-out 0.22s ease both; }
+
+  @media (max-width: 768px) {
+    [data-sp-topbar] { display: flex; }
+
+    /* On mobile the sidebar becomes a fixed drawer */
+    [data-sp-sidebar] {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      height: 100vh !important;
+      z-index: 299 !important;
+      transform: translateX(-100%);
+      transition: transform 0.26s cubic-bezier(0.22,1,0.36,1),
+                  box-shadow 0.26s ease;
+    }
+    [data-sp-sidebar].open {
+      transform: translateX(0);
+      box-shadow: 8px 0 48px rgba(0,0,0,0.7);
+    }
+    [data-sp-sidebar].closing {
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Hamburger button */
+  [data-sp-hamburger] {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  [data-sp-hamburger]:hover { background: rgba(255,255,255,0.06); }
+  [data-sp-hamburger] span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 2px;
+    transition: all 0.22s cubic-bezier(0.22,1,0.36,1);
+    transform-origin: center;
+  }
+  [data-sp-hamburger].open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  [data-sp-hamburger].open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  [data-sp-hamburger].open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+  /* Close button inside sidebar (mobile) */
+  [data-sp-close] {
+    display: none;
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    z-index: 10;
+  }
+  [data-sp-close]:hover { background: rgba(255,255,255,0.10); color: rgba(255,255,255,0.8); }
+
+  @media (max-width: 768px) {
+    [data-sp-close] { display: flex; }
+  }
+`;
+
 const s = {
-  // Root aside
   aside: {
     width: "240px",
     height: "100vh",
@@ -89,9 +202,6 @@ const s = {
     pointerEvents: "none",
     zIndex: 0,
   },
-  inner: { position: "relative", zIndex: 1, display: "contents" },
-
-  // Brand
   brand: {
     display: "flex",
     alignItems: "center",
@@ -105,6 +215,7 @@ const s = {
     position: "relative",
     zIndex: 1,
     textDecoration: "none",
+    paddingRight: "52px", // room for close btn on mobile
   },
   brandMark: {
     width: "36px",
@@ -136,8 +247,6 @@ const s = {
     marginTop: "2px",
     textTransform: "uppercase",
   },
-
-  // Nav
   nav: {
     flex: 1,
     display: "flex",
@@ -157,8 +266,6 @@ const s = {
     padding: "14px 10px 5px",
     margin: 0,
   },
-
-  // Nav button — base
   navBtn: {
     display: "flex",
     alignItems: "center",
@@ -184,8 +291,6 @@ const s = {
     color: C.goldBright,
     fontWeight: 500,
   },
-
-  // Icon wrap
   iconWrap: {
     width: "28px",
     height: "28px",
@@ -201,8 +306,6 @@ const s = {
     background: C.goldIcon,
     color: C.gold,
   },
-
-  // Badge
   badge: {
     marginLeft: "auto",
     fontSize: "10px",
@@ -219,14 +322,11 @@ const s = {
     color: C.gold,
     fontSize: "11px",
   },
-
   divider: {
     height: "1px",
     background: C.divider,
     margin: "8px 10px",
   },
-
-  // Bottom / user
   bottom: {
     padding: "10px 10px 16px",
     borderTop: `1px solid ${C.border}`,
@@ -288,14 +388,11 @@ const s = {
   },
 };
 
-function NavButton({ item, page, setPage }) {
+function NavButton({ item, page, setPage, onNavigate }) {
   const isActive = page === item.id;
   return (
     <button
-      style={{
-        ...s.navBtn,
-        ...(isActive ? s.navBtnActive : {}),
-      }}
+      style={{ ...s.navBtn, ...(isActive ? s.navBtnActive : {}) }}
       onMouseEnter={e => {
         if (!isActive) {
           e.currentTarget.style.background = C.hoverBg;
@@ -308,7 +405,7 @@ function NavButton({ item, page, setPage }) {
           e.currentTarget.style.color = C.textMuted;
         }
       }}
-      onClick={() => setPage(item.id)}
+      onClick={() => { setPage(item.id); onNavigate?.(); }}
     >
       <span style={{ ...s.iconWrap, ...(isActive ? s.iconWrapActive : {}) }}>
         {NAV_ICONS[item.icon]}
@@ -323,38 +420,80 @@ function NavButton({ item, page, setPage }) {
   );
 }
 
-export default function AppSidebar({ page, setPage }) {
-  // Load Google Fonts once without injecting global CSS rules
-  if (typeof document !== "undefined" && !document.getElementById("sp-gfonts")) {
-    const link = document.createElement("link");
-    link.id = "sp-gfonts";
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap";
-    document.head.appendChild(link);
-  }
+export default function AppSidebar({ page, setPage, userName = "", userRole = "" }) {
+  const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  // Inject fonts + scoped CSS once
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (!document.getElementById("sp-gfonts")) {
+      const link = document.createElement("link");
+      link.id = "sp-gfonts";
+      link.rel = "stylesheet";
+      link.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap";
+      document.head.appendChild(link);
+    }
+    if (!document.getElementById("sp-sidebar-css")) {
+      const style = document.createElement("style");
+      style.id = "sp-sidebar-css";
+      style.textContent = SIDEBAR_CSS;
+      document.head.appendChild(style);
+    }
+  }, []);
+
+  // Lock body scroll when drawer is open on mobile
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  const openDrawer  = () => { setClosing(false); setOpen(true); };
+  const closeDrawer = () => {
+    setClosing(true);
+    setTimeout(() => { setOpen(false); setClosing(false); }, 240);
+  };
+  const handleNavigate = () => {
+    // On mobile close after nav
+    if (window.innerWidth <= 768) closeDrawer();
+  };
 
   const mainNav = [
- 
     { id: "book",     label: "Send Parcel",  icon: "book"     },
     { id: "track",    label: "Track Parcel", icon: "track",   badge: "2"              },
     { id: "coverage", label: "Coverage Map", icon: "coverage" },
   ];
-
   const secondaryNav = [
     { id: "contact", label: "Support",    icon: "contact" },
     { id: "account", label: "My Account", icon: "account" },
     { id: "admin",   label: "Admin",      icon: "admin",   badge: "!", badgeType: "alert" },
   ];
 
-  return (
-    <aside style={s.aside}>
-      {/* Ambient gold glow — purely decorative, position:absolute inside overflow:hidden */}
+  const sidebarClass = open ? (closing ? "closing" : "open") : "";
+
+  const SidebarContent = (
+    <aside
+      data-sp-sidebar=""
+      className={sidebarClass}
+      style={s.aside}
+    >
+      {/* Ambient glow */}
       <div style={s.glow} aria-hidden="true" />
+
+      {/* Mobile close button */}
+      <button
+        data-sp-close=""
+        onClick={closeDrawer}
+        aria-label="Close menu"
+      >
+        ✕
+      </button>
 
       {/* Brand */}
       <div
         style={s.brand}
-        onClick={() => setPage("home")}
+        onClick={() => { setPage("home"); handleNavigate(); }}
         onMouseEnter={e => (e.currentTarget.style.opacity = "0.80")}
         onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
       >
@@ -371,13 +510,12 @@ export default function AppSidebar({ page, setPage }) {
       <nav style={s.nav}>
         <p style={s.sectionLabel}>Navigation</p>
         {mainNav.map(item => (
-          <NavButton key={item.id} item={item} page={page} setPage={setPage} />
+          <NavButton key={item.id} item={item} page={page} setPage={setPage} onNavigate={handleNavigate} />
         ))}
-
         <div style={s.divider} />
         <p style={s.sectionLabel}>Account</p>
         {secondaryNav.map(item => (
-          <NavButton key={item.id} item={item} page={page} setPage={setPage} />
+          <NavButton key={item.id} item={item} page={page} setPage={setPage} onNavigate={handleNavigate} />
         ))}
       </nav>
 
@@ -389,16 +527,51 @@ export default function AppSidebar({ page, setPage }) {
           onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
         >
           <div style={s.avatarWrap}>
-            <div style={s.avatar}></div>
+            <div style={s.avatar}>{userName ? userName[0].toUpperCase() : ""}</div>
             <div style={s.statusDot} />
           </div>
           <div>
-            <p style={s.userName}></p>
-            <p style={s.userRole}></p>
+            <p style={s.userName}>{userName}</p>
+            <p style={s.userRole}>{userRole}</p>
           </div>
           <span style={s.userArrow}>↗</span>
         </div>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar — hidden on desktop via CSS */}
+      <div data-sp-topbar="">
+        <div
+          style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}
+          onClick={() => { setPage("home"); }}
+        >
+          <div style={{ ...s.brandMark, width: 30, height: 30, fontSize: 14 }}>📦</div>
+          <span style={{ ...s.brandName, fontSize: "14px" }}>
+            Swift<span style={s.brandAccent}>Parcel</span>
+          </span>
+        </div>
+        <button
+          data-sp-hamburger=""
+          className={open && !closing ? "open" : ""}
+          onClick={open ? closeDrawer : openDrawer}
+          aria-label="Toggle menu"
+        >
+          <span /><span /><span />
+        </button>
+      </div>
+
+      {/* Backdrop overlay — mobile only */}
+      <div
+        data-sp-overlay=""
+        className={open ? (closing ? "hiding" : "visible") : ""}
+        onClick={closeDrawer}
+      />
+
+      {/* Sidebar itself */}
+      {SidebarContent}
+    </>
   );
 }
