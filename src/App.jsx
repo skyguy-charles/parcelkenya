@@ -1,51 +1,49 @@
 import { useState, useEffect } from "react";
-import "./index.css";
-
-import AppSidebar from "./components/AppSidebar";
-import TopBar from "./components/TopBar";
-
-import LandingPage from "./components/pages/LandingPage";
-import HomePage from "./components/pages/HomePage";
-import BookPage from "./components/pages/BookPage";
-import TrackPage from "./TrackPage";
-import CoverPage from "./components/pages/CoverPage";
-import ContactPage from "./components/pages/ContactPage";
-import AccountPage from "./components/pages/AccountPage";
-import AdminPage from "./components/pages/Adminpage";
-import AboutPage from "./components/pages/AboutPage";
-import ServicesPage from "./components/ServicePage";
-
+import TopBar from "./components/layout/TopBar";
+import LandingPage from "./pages/LandingPage";
+import HomePage from "./pages/HomePage";
+import AccountPage from "./pages/AccountPage";
+import AdminPage from "./pages/AdminPage";
+import AboutPage from "./pages/AboutPage";
+import ServicesPage from "./pages/ServicePage";
+import CoverPage from "./pages/CoverPage";
+import BookPage from "./pages/BookPage";
 const PAGES = {
-  track: TrackPage,
   coverage: CoverPage,
-  contact: ContactPage,
   account: AccountPage,
-  services: ServicesPage,
 };
-
+function getPageFromPath() {
+  return window.location.pathname === "/admin" ? "admin" : "landing";
+}
 export default function App() {
-  const [page, setPage] = useState("landing");
-
+  const [page, setPage] = useState(getPageFromPath);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
-
-  // Pages that render fullscreen without the shell
-  if (page === "landing") return <LandingPage setPage={setPage} />;
-  if (page === "home")    return <HomePage setPage={setPage} />;
-  if (page === "about")   return <AboutPage setPage={setPage} />;
-  if (page === "book")    return <BookPage setPage={setPage} />;
-  if (page === "admin")   return <AdminPage setPage={setPage} />;
-
-  const PageComponent = PAGES[page] ?? TrackPage;
-
+  // Keep in sync with browser back/forward
+  useEffect(() => {
+    const onPopState = () => setPage(getPageFromPath());
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+  // Wrap setPage so navigating elsewhere in the app also clears the /admin URL
+  const navigate = (pg) => {
+    if (pg !== "admin" && window.location.pathname === "/admin") {
+      window.history.pushState({}, "", "/");
+    }
+    setPage(pg);
+  };
+  if (page === "landing")  return <LandingPage setPage={navigate} />;
+  if (page === "home")     return <HomePage setPage={navigate} />;
+  if (page === "about")    return <AboutPage setPage={navigate} />;
+  if (page === "admin")    return <AdminPage setPage={navigate} />;
+  if (page === "services") return <ServicesPage setPage={navigate} />;
+  if (page === "book")     return <BookPage setPage={navigate} />;
+  const PageComponent = PAGES[page] ?? CoverPage;
   return (
-    <div className="app-shell">
-      <AppSidebar page={page} setPage={setPage} />
-      <div className="main-content">
-        <TopBar page={page} setPage={setPage} />
-        <PageComponent setPage={setPage} />
-      </div>
+    <div className="main-content">
+      <TopBar page={page} setPage={navigate} />
+      <PageComponent setPage={navigate} />
     </div>
   );
 }

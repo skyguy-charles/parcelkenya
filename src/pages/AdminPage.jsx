@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { loadAllBookings, updateBookingStatus } from "./Storage";
+import { loadAllBookings, updateBookingStatus } from "../utils/storage";
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
 const CSS = `

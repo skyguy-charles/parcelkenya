@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ZONES, BRANCHES } from "../../data/Constants";
-import Footer from "../Footer";
+import { ZONES, BRANCHES } from "../data/Constants";
+import Footer from "../components/layout/Footer";
 export default function CoveragePage({ setPage }) {
   const [active, setActive] = useState(null);
 

@@ -531,7 +531,6 @@ export default function AboutPage({ setPage }) {
           ))}
         </div>
         <div className="ab-nav-right">
-          <button className="btn-ghost-nav" onClick={() => navTo("track")}>Track Parcel</button>
           <button className="btn-gold-sm" onClick={() => navTo("book")}>Send Now →</button>
         </div>
         <button
@@ -549,8 +548,7 @@ export default function AboutPage({ setPage }) {
           <div key={pg} className={`ab-mobile-link${pg==="about"?" active":""}`} onClick={() => navTo(pg)}>{lbl}</div>
         ))}
         <div className="ab-mobile-actions">
-          <button className="btn-ghost-nav" onClick={() => navTo("track")}>Track Parcel</button>
-          <button className="btn-gold-sm"   onClick={() => navTo("book")}>Send Now →</button>
+          <button className="btn-gold-sm" onClick={() => navTo("book")}>Send Now →</button>
         </div>
       </div>
 

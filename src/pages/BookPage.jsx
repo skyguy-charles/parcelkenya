@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { saveBooking } from "./Storage";
+import { saveBooking } from "../utils/storage";
 
 /* ─────────────────────────────────────────────────────────────
    SPEEDPAK BOOK PAGE
@@ -247,6 +247,53 @@ body{
 
 .bp-input:focus{
   border-color:var(--gold);
+}
+
+/* LOCATION */
+
+.bp-loc-row{
+  display:flex;
+  gap:10px;
+}
+
+.bp-loc-row .bp-input{
+  flex:1;
+}
+
+.bp-loc-btn{
+  flex-shrink:0;
+  border:1px solid rgba(245,166,35,0.3);
+  background:rgba(245,166,35,0.08);
+  color:var(--gold);
+  padding:0 18px;
+  height:48px;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:0.82rem;
+  font-weight:600;
+  white-space:nowrap;
+  transition:0.2s;
+}
+
+.bp-loc-btn:hover{
+  background:rgba(245,166,35,0.15);
+}
+
+.bp-loc-btn:disabled{
+  opacity:0.6;
+  cursor:default;
+}
+
+.bp-loc-note{
+  margin-top:10px;
+  font-size:0.78rem;
+  color:var(--green);
+}
+
+.bp-loc-error{
+  margin-top:10px;
+  font-size:0.78rem;
+  color:#F27272;
 }
 
 /* SERVICES */
@@ -579,6 +626,13 @@ body{
   .bp-grid-2{
     grid-template-columns:1fr;
   }
+  .bp-loc-row{
+    flex-direction:column;
+  }
+  .bp-loc-btn{
+    height:44px;
+    width:100%;
+  }
   .bp-page-title{
     font-size:2.5rem;
   }
@@ -667,6 +721,52 @@ function ProgressRail({ step }) {
 /* STEP 1 */
 
 function Step1({ form, u, onNext }) {
+  const [locating, setLocating] = useState(false);
+  const [locError, setLocError] = useState("");
+  const [locFound, setLocFound] = useState(false);
+
+  const detectRecipientLocation = () => {
+    if (!navigator.geolocation) {
+      setLocError("Location isn't supported on this device.");
+      return;
+    }
+    setLocating(true);
+    setLocError("");
+    setLocFound(false);
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`
+          );
+          const data = await res.json();
+          const addr = data.address || {};
+          const place =
+            addr.county ||
+            addr.state_district ||
+            addr.city ||
+            addr.town ||
+            addr.village ||
+            addr.state ||
+            data.display_name;
+          u("recipientCounty", place || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+        } catch {
+          u("recipientCounty", `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+        } finally {
+          setLocating(false);
+          setLocFound(true);
+        }
+      },
+      () => {
+        setLocating(false);
+        setLocError("Couldn't detect location. Please turn on location access and try again, or enter it manually.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   return (
     <div className="bp-block">
       <Section num="A" title="Sender Information" />
@@ -691,7 +791,14 @@ function Step1({ form, u, onNext }) {
         </Field>
       </div>
       <Field label="Recipient County">
-        <input className="bp-input" value={form.recipientCounty} onChange={(e) => u("recipientCounty", e.target.value)} />
+        <div className="bp-loc-row">
+          <input className="bp-input" value={form.recipientCounty} onChange={(e) => u("recipientCounty", e.target.value)} />
+          <button type="button" className="bp-loc-btn" onClick={detectRecipientLocation} disabled={locating}>
+            {locating ? "Locating…" : "📍 Use recipient's location"}
+          </button>
+        </div>
+        {locFound && !locError && <div className="bp-loc-note">Location detected and filled in above.</div>}
+        {locError && <div className="bp-loc-error">{locError}</div>}
       </Field>
       <Field label="Parcel Weight (kg)">
         <input className="bp-input" type="number" value={form.weight} onChange={(e) => u("weight", e.target.value)} />
@@ -792,7 +899,7 @@ function Step3({ form, u, total, onBack, onNext }) {
 
 /* STEP 4 */
 
-function Step4({ form, total, trackingId, onNew, setPage }) {
+function Step4({ form, total, trackingId, onNew }) {
   return (
     <div className="bp-confirm">
       <div className="bp-confirm-ring">✓</div>
@@ -817,7 +924,6 @@ function Step4({ form, total, trackingId, onNew, setPage }) {
       <p className="bp-confirm-note">SMS confirmation has been sent successfully.</p>
       <div className="bp-confirm-actions">
         <button className="bp-btn-primary" onClick={onNew}>Book Another Parcel</button>
-        <button className="bp-btn-ghost" onClick={() => setPage("admin")}>View in Admin →</button>
       </div>
     </div>
   );
@@ -876,9 +982,6 @@ export default function BookPage({ setPage }) {
           SpeedPak
         </div>
         <div className="bp-nav-center">New Shipment</div>
-        <button className="bp-nav-btn" onClick={() => setPage?.("admin")}>
-          Admin Dashboard →
-        </button>
       </nav>
       <div className="bp-layout">
         <div className="bp-form-area">
@@ -891,7 +994,7 @@ export default function BookPage({ setPage }) {
           {step === 1 && <Step1 form={form} u={u} onNext={() => setStep(2)} />}
           {step === 2 && <Step2 form={form} u={u} onBack={() => setStep(1)} onNext={() => setStep(3)} />}
           {step === 3 && <Step3 form={form} u={u} total={total} onBack={() => setStep(2)} onNext={handleConfirm} />}
-          {step === 4 && <Step4 form={form} total={total} trackingId={trackingId.current} onNew={handleNew} setPage={setPage} />}
+          {step === 4 && <Step4 form={form} total={total} trackingId={trackingId.current} onNew={handleNew} />}
         </div>
         {step < 4 && <SummaryPanel fee={fee} weightCost={weightCost} total={total} />}
       </div>
