@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="ParcelKenya icon">
+  <rect width="192" height="192" rx="36" fill="#0f172a"/>
+  <rect x="38" y="54" width="116" height="84" rx="18" fill="#f8fafc"/>
+  <path d="M66 86h60" stroke="#0f172a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M78 106h36" stroke="#0f172a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="72" cy="122" r="8" fill="#22c55e"/>
+  <circle cx="120" cy="122" r="8" fill="#22c55e"/>
+</svg>
