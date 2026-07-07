@@ -1,28 +1,28 @@
 {
   "name": "Parcel Kenya",
-  "short_name": "Parcel",
-  "description": "ParcelKenya helps you book and track parcels in Kenya.",
-  "theme_color": "#16a34a",
+  "short_name": "ParcelKenya",
+  "description": "ParcelKenya helps you book and track parcels in Kenya. Send, deliver, anywhere in Kenya.",
+  "theme_color": "#0d1b2a",
   "background_color": "#ffffff",
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
   "icons": [
     {
-      "src": "/logo.png",
-      "sizes": "200x200",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
+      "src": "/favicon.png",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
@@ -35,8 +35,8 @@
   ],
   "screenshots": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
+      "src": "/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]

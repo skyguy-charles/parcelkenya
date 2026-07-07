@@ -1,0 +1,8 @@
+{
+  "appId": "com.parcelkenya.app",
+  "appName": "Parcel Kenya",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
