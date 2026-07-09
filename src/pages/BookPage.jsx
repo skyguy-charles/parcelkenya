@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { saveBooking } from "../utils/storage";
 
 /* ─────────────────────────────────────────────────────────────
-   SPEEDPAK BOOK PAGE
+PARCEL KE BOOK PAGE
 ───────────────────────────────────────────────────────────── */
 
 const CSS = `
@@ -304,6 +304,54 @@ body{
   gap:16px;
 }
 
+.bp-categories{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+
+.bp-cat{
+  background:var(--bg3);
+  border:1px solid var(--line2);
+  border-radius:18px;
+  padding:18px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.bp-cat:hover{
+  transform:translateY(-2px);
+}
+
+.bp-cat.sel{
+  border-color:var(--gold);
+  background:rgba(245,166,35,0.08);
+}
+
+.bp-cat-icon{
+  font-size:1.3rem;
+  margin-bottom:10px;
+}
+
+.bp-cat-name{
+  font-weight:700;
+  margin-bottom:6px;
+  font-size:0.9rem;
+}
+
+.bp-cat-desc{
+  color:var(--text40);
+  font-size:0.74rem;
+  line-height:1.5;
+  margin-bottom:12px;
+}
+
+.bp-cat-price{
+  font-size:0.76rem;
+  color:var(--gold);
+  font-family:var(--mono);
+}
+
 .bp-svc{
   background:var(--bg3);
   border:1px solid var(--line2);
@@ -474,7 +522,7 @@ body{
 
 .bp-payments{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(2,1fr);
   gap:16px;
 }
 
@@ -600,6 +648,9 @@ body{
     position:relative;
     top:0;
   }
+  .bp-categories{
+    grid-template-columns:repeat(2,1fr);
+  }
   .bp-services,
   .bp-slots,
   .bp-payments{
@@ -624,6 +675,9 @@ body{
     border-radius:20px;
   }
   .bp-grid-2{
+    grid-template-columns:1fr;
+  }
+  .bp-categories{
     grid-template-columns:1fr;
   }
   .bp-loc-row{
@@ -661,18 +715,49 @@ const INITIAL_FORM_STATE = {
   recipientPhone: "",
   recipientCounty: "",
   weight: "",
+  category: "small",
   speed: "standard",
   date: "",
   timeSlot: "",
   insurance: false,
   payment: "mpesa",
-  mpesaPhone: "",
 };
 
 const SVC_MAP = {
   express: { label: "Express", price: 700 },
   standard: { label: "Standard", price: 420 },
   economy: { label: "Economy", price: 250 },
+};
+
+const CATEGORY_MAP = {
+  documents: {
+    label: "Documents",
+    icon: "📄",
+    desc: "Papers, envelopes, certificates",
+    surcharge: 0,
+    perKg: 20,
+  },
+  small: {
+    label: "Small Parcel",
+    icon: "📦",
+    desc: "Small boxes or bags, up to 5kg",
+    surcharge: 100,
+    perKg: 60,
+  },
+  large: {
+    label: "Large Parcel",
+    icon: "🧳",
+    desc: "Bulky items, above 5kg",
+    surcharge: 250,
+    perKg: 90,
+  },
+  fragile: {
+    label: "Fragile",
+    icon: "🍷",
+    desc: "Glass, electronics, breakables",
+    surcharge: 400,
+    perKg: 110,
+  },
 };
 
 const slots = [
@@ -743,8 +828,6 @@ function Step1({ form, u, onNext }) {
           );
           const data = await res.json();
           const addr = data.address || {};
-          // Prefer the most specific real-world label first (street/estate/
-          // neighbourhood), falling back to broader areas only if needed.
           const place =
             addr.road ||
             addr.neighbourhood ||
@@ -762,8 +845,6 @@ function Step1({ form, u, onNext }) {
               ? `${place}, ${addr.suburb}`
               : place;
           u("senderCounty", label || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
-          // Flag low-accuracy fixes (e.g. Wi-Fi/IP based) so the user knows
-          // to double check the result rather than trust it blindly.
           if (accuracy && accuracy > 200) {
             setLocError(
               `Location accuracy is low (~${Math.round(accuracy)}m). Confirm the field is correct or refine it manually.`
@@ -822,6 +903,21 @@ function Step1({ form, u, onNext }) {
       <Field label="Parcel Weight (kg)">
         <input className="bp-input" type="number" value={form.weight} onChange={(e) => u("weight", e.target.value)} />
       </Field>
+
+      <Section num="C" title="What Are You Sending?" />
+      <div className="bp-categories">
+        {Object.entries(CATEGORY_MAP).map(([key, c]) => (
+          <div key={key} className={`bp-cat ${form.category === key ? "sel" : ""}`} onClick={() => u("category", key)}>
+            <div className="bp-cat-icon">{c.icon}</div>
+            <div className="bp-cat-name">{c.label}</div>
+            <div className="bp-cat-desc">{c.desc}</div>
+            <div className="bp-cat-price">
+              {c.surcharge > 0 ? `KSh ${c.surcharge} + ` : "KSh "}{c.perKg}/kg
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="bp-form-footer">
         <button className="bp-btn-primary" onClick={onNext}>Continue →</button>
       </div>
@@ -889,7 +985,6 @@ function Step3({ form, u, total, onBack, onNext }) {
       <div className="bp-payments">
         {[
           { val: "mpesa", icon: "📱", name: "M-Pesa" },
-          { val: "card", icon: "💳", name: "Card" },
           { val: "cash", icon: "💵", name: "Cash" },
         ].map((p) => (
           <div key={p.val} className={`bp-pay ${form.payment === p.val ? "sel" : ""}`} onClick={() => u("payment", p.val)}>
@@ -899,10 +994,8 @@ function Step3({ form, u, total, onBack, onNext }) {
         ))}
       </div>
       {form.payment === "mpesa" && (
-        <div className="bp-pay-detail">
-          <Field label="M-Pesa Number">
-            <input className="bp-input" placeholder="+254700000000" value={form.mpesaPhone} onChange={(e) => u("mpesaPhone", e.target.value)} />
-          </Field>
+        <div className="bp-cash-alert">
+          Pay via M-Pesa Till Number <strong>8595678</strong>. Enter amount KSh {total.toLocaleString()}, complete the payment, then tap Confirm Booking below.
         </div>
       )}
       {form.payment === "cash" && (
@@ -932,6 +1025,10 @@ function Step4({ form, total, trackingId, onNew }) {
           <strong>{form.recipientCounty}</strong>
         </div>
         <div className="bp-confirm-row">
+          <span>Category</span>
+          <strong>{CATEGORY_MAP[form.category]?.label || "—"}</strong>
+        </div>
+        <div className="bp-confirm-row">
           <span>Service</span>
           <strong>{SVC_MAP[form.speed].label}</strong>
         </div>
@@ -950,11 +1047,12 @@ function Step4({ form, total, trackingId, onNew }) {
 
 /* SUMMARY */
 
-function SummaryPanel({ fee, weightCost, total }) {
+function SummaryPanel({ fee, weightCost, categorySurcharge, categoryLabel, total }) {
   return (
     <div className="bp-summary">
       <div className="bp-summary-title">Shipment Summary</div>
       <div className="bp-summary-row"><span>Delivery Fee</span><span>KSh {fee}</span></div>
+      <div className="bp-summary-row"><span>{categoryLabel} Handling</span><span>KSh {categorySurcharge}</span></div>
       <div className="bp-summary-row"><span>Weight Charge</span><span>KSh {weightCost}</span></div>
       <div className="bp-summary-total"><span>Total</span><span>KSh {total}</span></div>
     </div>
@@ -969,11 +1067,12 @@ export default function BookPage({ setPage }) {
   const trackingId = useRef("SPK-" + Math.floor(100000 + Math.random() * 900000));
   const u = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const fee = (SVC_MAP[form.speed] || SVC_MAP.standard).price;
-  const weightCost = Math.round(parseFloat(form.weight || 0) * 60);
-  const total = fee + weightCost + (form.insurance ? 80 : 0);
+  const category = CATEGORY_MAP[form.category] || CATEGORY_MAP.small;
+  const weightCost = Math.round(parseFloat(form.weight || 0) * category.perKg);
+  const categorySurcharge = category.surcharge;
+  const total = fee + weightCost + categorySurcharge + (form.insurance ? 80 : 0);
 
   const handleConfirm = () => {
-    // Save with booking:{id} key so AdminPage can read it
     saveBooking({
       id: trackingId.current,
       form,
@@ -998,7 +1097,7 @@ export default function BookPage({ setPage }) {
       <nav className="bp-nav">
         <div className="bp-nav-brand" onClick={() => setPage?.("home")}>
           <div className="bp-nav-brand-dot" />
-          SpeedPak
+          PARCEL KENYA
         </div>
         <div className="bp-nav-center">New Shipment</div>
       </nav>
@@ -1015,7 +1114,15 @@ export default function BookPage({ setPage }) {
           {step === 3 && <Step3 form={form} u={u} total={total} onBack={() => setStep(2)} onNext={handleConfirm} />}
           {step === 4 && <Step4 form={form} total={total} trackingId={trackingId.current} onNew={handleNew} />}
         </div>
-        {step < 4 && <SummaryPanel fee={fee} weightCost={weightCost} total={total} />}
+        {step < 4 && (
+          <SummaryPanel
+            fee={fee}
+            weightCost={weightCost}
+            categorySurcharge={categorySurcharge}
+            categoryLabel={category.label}
+            total={total}
+          />
+        )}
       </div>
     </div>
   );
