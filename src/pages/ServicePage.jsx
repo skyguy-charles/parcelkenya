@@ -153,7 +153,7 @@ export default function Services({ setPage }) {
       <nav className="sv-nav">
         <div className="sv-nav-logo" onClick={() => handleNav("home")}>
           <div className="sv-nav-dot" />
-          SwiftParcel
+          PARCELKENYA
         </div>
         <div className="sv-nav-links">
           {[["home","Home"],["services","Services"],["about","About"]].map(([pg,lbl]) => (
