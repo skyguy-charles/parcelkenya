@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { loadAllBookings, updateBookingStatus } from "../utils/storage";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import { deleteBooking, subscribeBookings, updateBookingStatus } from "../services/bookings";
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
 const CSS = `
@@ -373,18 +375,9 @@ body{
     165px
     128px
     118px
-    136px;
-  min-width:1095px;
-}
-
-.adm-table-head{
-  border-bottom:1px solid var(--line2);
-  background:rgba(255,255,255,.025);
-}
-
-.adm-th{
-  padding:14px 16px;
-  font-size:.54rem;
+      136px
+      160px;
+    min-width:1255px;
   letter-spacing:2.5px;
   text-transform:uppercase;
   color:var(--text20);
@@ -497,12 +490,36 @@ body{
   border:1px solid rgba(224,96,96,.18);
 }
 
-/* ── EMPTY ── */
-
-.adm-empty{
-  padding:80px 20px;
-  text-align:center;
+.adm-action-select {
+  width:100%;
+  margin-bottom:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--line2);
+  background:var(--ink);
+  color:var(--text);
+  font-family:var(--body);
+  font-size:.82rem;
+  outline:none;
 }
+
+.adm-action-delete {
+  width:100%;
+  border:none;
+  cursor:pointer;
+  padding:10px 12px;
+  border-radius:12px;
+  background:rgba(224,96,96,.12);
+  color:var(--coral);
+  font-size:.82rem;
+  font-family:var(--body);
+  transition:.18s;
+}
+
+.adm-action-delete:hover {
+  background:rgba(224,96,96,.18);
+}
+
 
 .adm-empty-icon{
   font-size:2.8rem;
@@ -800,7 +817,7 @@ const SVC_MAP = {
 
 function fmt(ts) {
   if (!ts) return "—";
-  const d = new Date(ts);
+  const d = ts?.toDate ? ts.toDate() : new Date(ts);
   return (
     d.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" }) +
     " · " +
@@ -808,10 +825,37 @@ function fmt(ts) {
   );
 }
 
+function normalizeBooking(booking) {
+  const form = booking.form || {
+    senderName: booking.senderName || "",
+    senderPhone: booking.senderPhone || "",
+    senderCounty: booking.senderCounty || "",
+    recipientName: booking.recipientName || "",
+    recipientPhone: booking.recipientPhone || "",
+    recipientCounty: booking.recipientCounty || "",
+    weight: booking.weight || "",
+    speed: booking.service || "standard",
+    date: booking.pickupDate || "",
+    timeSlot: booking.pickupTime || "",
+    insurance: booking.insurance || false,
+    payment: booking.paymentMethod || "mpesa",
+    mpesaPhone: booking.mpesaPhone || "",
+  };
+
+  return {
+    ...booking,
+    form,
+    trackingId: booking.trackingId || booking.id,
+    status: booking.status || "pending",
+    total: Number(booking.total || 0),
+  };
+}
+
 function StatusBadge({ status }) {
   const labels = {
     pending: "Pending",
-    transit: "In Transit",
+    approved: "Approved",
+    dispatched: "Dispatched",
     delivered: "Delivered",
     cancelled: "Cancelled",
   };
@@ -825,8 +869,8 @@ function StatusBadge({ status }) {
 
 // ── DETAIL DRAWER ─────────────────────────────────────────────────────────────
 
-function DetailDrawer({ booking, onClose, onStatusChange }) {
-  const { form, fee, weightCost, total, createdAt, id, status } = booking;
+function DetailDrawer({ booking, onClose, onStatusChange, onDelete }) {
+  const { form, fee, weightCost, total, createdAt, id, status, trackingId } = booking;
   const svc = SVC_MAP[form?.speed] || SVC_MAP.standard;
 
   const Field = ({ label, value, mono, teal, full }) => (
@@ -844,7 +888,7 @@ function DetailDrawer({ booking, onClose, onStatusChange }) {
       <div className="adm-drawer">
         <div className="adm-drawer-header">
           <div>
-            <div className="adm-drawer-id">{id}</div>
+            <div className="adm-drawer-id">{trackingId || id}</div>
             <div className="adm-drawer-time">{fmt(createdAt)}</div>
             <StatusBadge status={status} />
           </div>
@@ -895,20 +939,53 @@ function DetailDrawer({ booking, onClose, onStatusChange }) {
               <Field label="Total Charged" value={`KSh ${(total || 0).toLocaleString()}`} teal />
             </div>
           </div>
+
+          <div className="adm-drawer-section">
+            <div className="adm-drawer-section-title">Audit Log</div>
+            <div className="adm-drawer-grid">
+              {(booking.statusHistory || []).length > 0 ? (
+                booking.statusHistory
+                  .slice()
+                  .reverse()
+                  .map((entry, index) => (
+                    <div key={index} className="adm-drawer-field full">
+                      <div className="adm-drawer-field-label">
+                        {entry.status?.charAt(0).toUpperCase() + entry.status?.slice(1)}
+                        {entry.email ? ` by ${entry.email}` : ""}
+                      </div>
+                      <div className="adm-drawer-field-value mono">
+                        {entry.updatedAt?.toDate ? entry.updatedAt.toDate().toLocaleString("en-KE") : entry.updatedAt || "Unknown time"}
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                <div className="adm-drawer-field full">
+                  <div className="adm-drawer-field-value">No audit log entries yet.</div>
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
 
         <div className="adm-drawer-footer">
           <div className="adm-drawer-footer-label">Update Status</div>
           <div className="adm-status-row">
-            {["pending", "transit", "delivered", "cancelled"].map((s) => (
+            {[
+              { value: "approved", label: "Approve" },
+              { value: "dispatched", label: "Dispatch" },
+              { value: "delivered", label: "Delivered" },
+              { value: "cancelled", label: "Cancel" },
+            ].map((s) => (
               <button
-                key={s}
-                className={`adm-status-opt${status === s ? " active" : ""}`}
-                onClick={() => onStatusChange(id, s)}
+                key={s.value}
+                className={`adm-status-opt${status === s.value ? " active" : ""}`}
+                onClick={() => onStatusChange(id, s.value)}
               >
-                {s === "transit" ? "In Transit" : s.charAt(0).toUpperCase() + s.slice(1)}
+                {s.label}
               </button>
             ))}
+            <button className="adm-status-opt" onClick={() => onDelete(id)}>Delete</button>
           </div>
         </div>
       </div>
@@ -932,20 +1009,60 @@ export default function AdminPage({ setPage }) {
     setTimeout(() => setToast(null), 2500);
   };
 
-  const refresh = useCallback((spin = false) => {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setSelected(null);
+      showToast("Logged out successfully");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const refresh = useCallback(async (spin = false) => {
     if (spin) setSpinning(true);
-    setBookings(loadAllBookings());
-    setLoading(false);
+    setLoading(true);
+
     if (spin) setTimeout(() => setSpinning(false), 600);
   }, []);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    const unsubscribe = subscribeBookings((data) => {
+      setBookings(data.map(normalizeBooking));
+      setLoading(false);
+      setSpinning(false);
+    });
 
-  const handleStatusChange = (id, status) => {
-    if (updateBookingStatus(id, status)) {
-      setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status } : b));
+    return () => unsubscribe();
+  }, []);
+
+  const handleStatusChange = async (id, status) => {
+    try {
+      await updateBookingStatus(id, status, auth.currentUser);
+      setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status } : b)));
       if (selected?.id === id) setSelected((prev) => ({ ...prev, status }));
-      showToast(`✓ Status updated to ${status === "transit" ? "In Transit" : status}`);
+      const label =
+        status === "approved"
+          ? "Approved"
+          : status === "dispatched"
+            ? "Dispatched"
+            : status === "cancelled"
+              ? "Cancelled"
+              : "Delivered";
+      showToast(`✓ Status updated to ${label}`);
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteBooking(id);
+      setBookings((prev) => prev.filter((b) => b.id !== id));
+      if (selected?.id === id) setSelected(null);
+      showToast("✓ Booking deleted");
+    } catch (error) {
+      console.error("Failed to delete booking:", error);
     }
   };
 
@@ -954,22 +1071,28 @@ export default function AdminPage({ setPage }) {
     const q = search.toLowerCase();
     const matchSearch =
       !q ||
-      b.id?.toLowerCase().includes(q) ||
+      (b.trackingId || b.id)?.toLowerCase().includes(q) ||
       b.form?.senderName?.toLowerCase().includes(q) ||
       b.form?.recipientName?.toLowerCase().includes(q) ||
       b.form?.senderCounty?.toLowerCase().includes(q) ||
       b.form?.recipientCounty?.toLowerCase().includes(q) ||
-      b.form?.senderPhone?.includes(q);
+      b.form?.senderPhone?.includes(q) ||
+      b.form?.recipientPhone?.includes(q);
     return matchFilter && matchSearch;
   });
 
-  const totalRevenue = bookings.reduce((sum, b) => sum + (b.total || 0), 0);
+  const totalRevenue = bookings.reduce((sum, b) => sum + (Number(b.total) || 0), 0);
   const pending = bookings.filter((b) => b.status === "pending").length;
-  const inTransit = bookings.filter((b) => b.status === "transit").length;
+  const approved = bookings.filter((b) => b.status === "approved").length;
+  const dispatched = bookings.filter((b) => b.status === "dispatched").length;
   const delivered = bookings.filter((b) => b.status === "delivered").length;
-
-  // Live date string
+  const cancelled = bookings.filter((b) => b.status === "cancelled").length;
   const now = new Date();
+  const todayBookings = bookings.filter((b) => {
+    const created = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+    return created && created.toDateString() === now.toDateString();
+  }).length;
+
   const dateStr = now.toLocaleDateString("en-KE", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
 
   return (
@@ -1002,16 +1125,23 @@ export default function AdminPage({ setPage }) {
               <span>{spinning ? "↻" : "↻"}</span>
               {spinning ? "Refreshing…" : "Refresh"}
             </button>
+            <button className="adm-refresh-btn" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
         </div>
 
         {/* STATS */}
         <div className="adm-stats">
           {[
-            { label: "Total Bookings", value: bookings.length, sub: "All time", cls: "amber", icon: "📦" },
-            { label: "Revenue (KSh)", value: `${(totalRevenue / 1000).toFixed(1)}K`, sub: "Estimated total", cls: "teal", icon: "💰" },
-            { label: "Pending", value: pending, sub: "Awaiting pickup", cls: "coral", icon: "⏳" },
-            { label: "In Transit", value: inTransit, sub: `${delivered} delivered`, cls: "sky", icon: "🚚" },
+            { label: "Pending", value: pending, sub: "Awaiting review", cls: "coral", icon: "⏳" },
+            { label: "Approved", value: approved, sub: "Ready to dispatch", cls: "amber", icon: "✓" },
+            { label: "Dispatched", value: dispatched, sub: "On the move", cls: "sky", icon: "🚚" },
+            { label: "Delivered", value: delivered, sub: "Completed orders", cls: "teal", icon: "🏁" },
+            { label: "Cancelled", value: cancelled, sub: "Stopped orders", cls: "coral", icon: "✕" },
+            { label: "Revenue", value: `KSh ${totalRevenue.toLocaleString()}`, sub: "Collected so far", cls: "teal", icon: "💰" },
+            { label: "Today's Bookings", value: todayBookings, sub: "New today", cls: "amber", icon: "📅" },
+            { label: "Total Bookings", value: bookings.length, sub: "All time", cls: "sky", icon: "📦" },
           ].map((s) => (
             <div key={s.label} className={`adm-stat ${s.cls}`}>
               <div className="adm-stat-icon">{s.icon}</div>
@@ -1034,13 +1164,13 @@ export default function AdminPage({ setPage }) {
             />
           </div>
           <div className="adm-filter-group">
-            {["all", "pending", "transit", "delivered", "cancelled"].map((f) => (
+            {["all", "pending", "approved", "dispatched", "delivered", "cancelled"].map((f) => (
               <button
                 key={f}
                 className={`adm-filter-btn${filter === f ? " active" : ""}`}
                 onClick={() => setFilter(f)}
               >
-                {f === "all" ? "All" : f === "transit" ? "Transit" : f.charAt(0).toUpperCase() + f.slice(1)}
+                {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
               </button>
             ))}
           </div>
@@ -1063,6 +1193,7 @@ export default function AdminPage({ setPage }) {
             <div className="adm-th">Service</div>
             <div className="adm-th">Amount</div>
             <div className="adm-th">Status</div>
+            <div className="adm-th">Actions</div>
           </div>
           <div className="adm-table-body">
             {loading ? (
@@ -1081,7 +1212,7 @@ export default function AdminPage({ setPage }) {
                 const svc = SVC_MAP[b.form?.speed] || SVC_MAP.standard;
                 return (
                   <div key={b.id} className="adm-row" onClick={() => setSelected(b)}>
-                    <div className="adm-cell adm-cell-id">{b.id}</div>
+                    <div className="adm-cell adm-cell-id">{b.trackingId || b.id}</div>
                     <div className="adm-cell">
                       <div className="adm-cell-name">{b.form?.senderName || "—"}</div>
                       <div className="adm-cell-sub">{b.form?.senderPhone || ""}</div>
@@ -1107,6 +1238,22 @@ export default function AdminPage({ setPage }) {
                     <div className="adm-cell">
                       <StatusBadge status={b.status || "pending"} />
                     </div>
+                    <div className="adm-cell" onClick={(event) => event.stopPropagation()}>
+                      <select
+                        value={b.status || "pending"}
+                        onChange={(e) => handleStatusChange(b.id, e.target.value)}
+                        className="adm-action-select"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="dispatched">Dispatched</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                      <button className="adm-action-delete" onClick={() => handleDelete(b.id)}>
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 );
               })
@@ -1120,6 +1267,7 @@ export default function AdminPage({ setPage }) {
           booking={selected}
           onClose={() => setSelected(null)}
           onStatusChange={handleStatusChange}
+          onDelete={handleDelete}
         />
       )}
 

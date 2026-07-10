@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { saveBooking } from "../utils/storage";
+import { addBooking } from "../services/bookings";
 
 /* ─────────────────────────────────────────────────────────────
    SPEEDPAK BOOK PAGE
@@ -882,7 +882,7 @@ function Step2({ form, u, onBack, onNext }) {
 
 /* STEP 3 */
 
-function Step3({ form, u, total, onBack, onNext }) {
+function Step3({ form, u, total, onBack, onNext, error }) {
   return (
     <div className="bp-block">
       <Section num="A" title="Payment Method" />
@@ -907,6 +907,9 @@ function Step3({ form, u, total, onBack, onNext }) {
       )}
       {form.payment === "cash" && (
         <div className="bp-cash-alert">Pay your rider KSh {total.toLocaleString()} on pickup.</div>
+      )}
+      {error && (
+        <div style={{ marginTop: 12, color: "#ffb4b4", fontSize: "0.92rem" }}>{error}</div>
       )}
       <div className="bp-form-footer">
         <button className="bp-btn-ghost" onClick={onBack}>← Back</button>
@@ -966,24 +969,43 @@ function SummaryPanel({ fee, weightCost, total }) {
 export default function BookPage({ setPage }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(INITIAL_FORM_STATE);
+  const [submitError, setSubmitError] = useState("");
   const trackingId = useRef("SPK-" + Math.floor(100000 + Math.random() * 900000));
   const u = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const fee = (SVC_MAP[form.speed] || SVC_MAP.standard).price;
   const weightCost = Math.round(parseFloat(form.weight || 0) * 60);
   const total = fee + weightCost + (form.insurance ? 80 : 0);
 
-  const handleConfirm = () => {
-    // Save with booking:{id} key so AdminPage can read it
-    saveBooking({
-      id: trackingId.current,
-      form,
-      fee,
-      weightCost,
-      total,
-      status: "pending",
-      createdAt: Date.now(),
-    });
-    setStep(4);
+  const handleConfirm = async () => {
+    setSubmitError("");
+
+    try {
+      await addBooking({
+        trackingId: trackingId.current,
+        senderName: form.senderName,
+        senderPhone: form.senderPhone,
+        senderCounty: form.senderCounty,
+        recipientName: form.recipientName,
+        recipientPhone: form.recipientPhone,
+        recipientCounty: form.recipientCounty,
+        weight: form.weight,
+        service: form.speed,
+        pickupDate: form.date,
+        pickupTime: form.timeSlot,
+        insurance: form.insurance,
+        paymentMethod: form.payment,
+        mpesaPhone: form.mpesaPhone,
+        fee,
+        weightCost,
+        total,
+        status: "pending",
+      });
+      setStep(4);
+    } catch (error) {
+      console.error("Booking failed:", error);
+      const message = error?.code || error?.message || "We couldn't confirm your booking right now. Please try again.";
+      setSubmitError(`Booking failed: ${message}`);
+    }
   };
 
   const handleNew = () => {
@@ -1012,7 +1034,7 @@ export default function BookPage({ setPage }) {
           {step < 4 && <ProgressRail step={step} />}
           {step === 1 && <Step1 form={form} u={u} onNext={() => setStep(2)} />}
           {step === 2 && <Step2 form={form} u={u} onBack={() => setStep(1)} onNext={() => setStep(3)} />}
-          {step === 3 && <Step3 form={form} u={u} total={total} onBack={() => setStep(2)} onNext={handleConfirm} />}
+          {step === 3 && <Step3 form={form} u={u} total={total} onBack={() => setStep(2)} onNext={handleConfirm} error={submitError} />}
           {step === 4 && <Step4 form={form} total={total} trackingId={trackingId.current} onNew={handleNew} />}
         </div>
         {step < 4 && <SummaryPanel fee={fee} weightCost={weightCost} total={total} />}
