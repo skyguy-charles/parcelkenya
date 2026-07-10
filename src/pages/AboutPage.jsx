@@ -523,10 +523,10 @@ export default function AboutPage({ setPage }) {
       >
         <div className="ab-nav-logo" onClick={() => navTo("home")}>
           <div className="ab-nav-dot" />
-          SpeedPak
+          PARCEL KENYA
         </div>
         <div className="ab-nav-links">
-          {[["home","Home"],["services","Services"],["track","Track"],["about","About"]].map(([pg, lbl]) => (
+          {[["home","Home"],["services","Services"],["about","About"]].map(([pg, lbl]) => (
             <span key={pg} className={pg === "about" ? "active" : ""} onClick={() => navTo(pg)}>{lbl}</span>
           ))}
         </div>
@@ -544,7 +544,7 @@ export default function AboutPage({ setPage }) {
 
       {/* Mobile drawer */}
       <div className={`ab-mobile-menu${menuOpen ? " open" : ""}`}>
-        {[["home","Home"],["services","Services"],["track","Track"],["about","About"]].map(([pg,lbl]) => (
+        {[["home","Home"],["services","Services"],["about","About"]].map(([pg,lbl]) => (
           <div key={pg} className={`ab-mobile-link${pg==="about"?" active":""}`} onClick={() => navTo(pg)}>{lbl}</div>
         ))}
         <div className="ab-mobile-actions">
@@ -562,7 +562,7 @@ export default function AboutPage({ setPage }) {
             Built by Kenyans,<br />for <em>every corner</em><br />of Kenya.
           </h1>
           <p className="ab-hero-sub">
-            SpeedPak was born from a simple frustration — parcels that got lost, riders who didn't show up, and tracking that said "delivered" when nothing arrived. We decided to fix it.
+            PARCEL KENYA was born from a simple frustration — parcels that got lost, riders who didn't show up, and tracking that said "delivered" when nothing arrived. We decided to fix it.
           </p>
         </div>
       </section>
@@ -595,7 +595,7 @@ export default function AboutPage({ setPage }) {
               <p className="ab-story-quote-attr">— Charles, Co-Founder & CTO</p>
             </div>
             <p className="ab-story-para">
-              Today SpeedPak is Kenya's fastest-growing courier platform — still headquartered in Nairobi, still deeply rooted in understanding how <strong>Kenyan commerce actually moves</strong>: the mama mboga, the online boutique, the SME shipping to upcountry, the student waiting for a parcel from Mum.
+              Today parcelkenya is Kenya's fastest-growing courier platform — still headquartered in Nairobi, still deeply rooted in understanding how <strong>Kenyan commerce actually moves</strong>: the mama mboga, the online boutique, the SME shipping to upcountry, the student waiting for a parcel from Mum.
             </p>
           </div>
         </div>
@@ -666,7 +666,7 @@ export default function AboutPage({ setPage }) {
               { year:"2021",     title:"Series A — KSh 180M raised", desc:"First institutional funding round led by Savannah Fund and two angel investors. Expansion to Mombasa, Kisumu, and Nakuru begins." },
               { year:"2022",     title:"All 47 counties reached",     desc:"SpeedPak becomes the first tech-enabled courier with confirmed coverage across every county in Kenya, including Mandera and Turkana." },
               { year:"2023",     title:"1 million deliveries",        desc:"The platform processes its 1,000,000th delivery. Real-time tracking now updates every 30 seconds. Business API launches with 1,200+ integrations." },
-              { year:"2024",     title:"SpeedPak for Business",       desc:"Launch of volume pricing, SLA guarantees, and dedicated account management for enterprise clients. 47 active riders online 24/7." },
+              { year:"2024",     title:"parcelkenya for Business",       desc:"Launch of volume pricing, SLA guarantees, and dedicated account management for enterprise clients. 47 active riders online 24/7." },
               { year:"2025",     title:"Today",                       desc:"1.2 million deliveries and counting. 98.4% on-time rate. Expanding into Uganda and Tanzania — but Kenya always first." },
             ].map(t => (
               <div className="ab-timeline-item" key={t.year}>
@@ -728,14 +728,14 @@ export default function AboutPage({ setPage }) {
       <footer className="ab-footer">
         <div className="ab-footer-brand">
           <div style={{ width:8, height:8, borderRadius:"50%", background:"var(--gold)", boxShadow:"0 0 12px var(--gold)" }} />
-          SpeedPak
+          parcelkenya
         </div>
         <div className="ab-footer-links">
-          {["Home","Services","Track","About","Careers","Contact"].map(l => (
+          {["Home","Services","About","Careers","Contact"].map(l => (
             <span key={l} onClick={() => navTo(l.toLowerCase())}>{l}</span>
           ))}
         </div>
-        <div className="ab-footer-copy">© 2025 SpeedPak Kenya · All 47 Counties</div>
+        <div className="ab-footer-copy">© 2025 PARCELKENYA Kenya · All 47 Counties</div>
       </footer>
     </div>
   );

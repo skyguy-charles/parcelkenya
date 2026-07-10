@@ -354,7 +354,7 @@ export default function LandingPage({ setPage }) {
       <nav className={`lp-nav${scrolled ? " solid" : ""}`}>
         <div className="lp-nav-logo" onClick={() => handleNav("home")}>
           <div className="lp-nav-dot" />
-          SwiftParcel
+          PARCEL KENYA
         </div>
         <div className="lp-nav-links">
           {[["home","Home"],["services","Services"],["about","About"]].map(([pg,lbl]) => (
@@ -640,7 +640,7 @@ export default function LandingPage({ setPage }) {
         <div className="lp-final-inner">
           <div className="lp-eyebrow">Ready to ship?</div>
           <h2 className="lp-final-h2">Kenya delivered<br/><em>on time, every time.</em></h2>
-          <p className="lp-final-sub">Join 18,000+ customers and businesses who trust SwiftParcel to move their world. Book your first delivery in under 60 seconds.</p>
+          <p className="lp-final-sub">Join 18,000+ customers and businesses who trust Parcelkenya to move their world. Book your first delivery in under 60 seconds.</p>
           <div className="lp-final-actions">
             <button className="btn-gold-lg" onClick={() => handleNav("book")}>Send a Parcel →</button>
             <button className="btn-outline-lg" onClick={() => handleNav("about")}>Our Story</button>
@@ -653,7 +653,7 @@ export default function LandingPage({ setPage }) {
       <footer className="lp-footer">
         <div className="lp-footer-top">
           <div>
-            <div className="lp-footer-brand"><div className="lp-footer-dot"/>SwiftParcel</div>
+            <div className="lp-footer-brand"><div className="lp-footer-dot"/>PARCEL KENYA</div>
             <p className="lp-footer-tagline">Kenya's most trusted tech-first courier. 47 counties, real-time tracking, zero excuses.</p>
             <div className="lp-footer-social">
               {["𝕏","in","▶","📘"].map(s => <div className="lp-footer-social-btn" key={s}>{s}</div>)}
@@ -675,7 +675,7 @@ export default function LandingPage({ setPage }) {
           ))}
         </div>
         <div className="lp-footer-bottom">
-          <div className="lp-footer-copy">© 2025 SwiftParcel Kenya Ltd · All 47 Counties · Nairobi HQ</div>
+          <div className="lp-footer-copy">© 2025 ParcelKenya Ltd · All 47 Counties · Nairobi HQ</div>
           <div className="lp-footer-legal">
             <span>Privacy Policy</span><span>Terms of Service</span><span>Cookie Policy</span>
           </div>
