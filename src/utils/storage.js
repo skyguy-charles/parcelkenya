@@ -6,6 +6,7 @@ import {
   doc,
   query,
   orderBy,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -13,10 +14,14 @@ import { db } from "../firebase";
 // Save booking
 export async function saveBooking(data) {
   try {
-    await addDoc(collection(db, "bookings"), data);
+    await addDoc(collection(db, "bookings"), {
+      ...data,
+      createdAt: serverTimestamp(),
+    });
+
     return true;
   } catch (err) {
-    console.error(err);
+    console.error("Firestore Save Error:", err);
     return false;
   }
 }
@@ -36,7 +41,7 @@ export async function loadAllBookings() {
       ...docSnap.data(),
     }));
   } catch (err) {
-    console.error(err);
+    console.error("Firestore Load Error:", err);
     return [];
   }
 }
@@ -52,7 +57,7 @@ export async function updateBookingStatus(id, status) {
 
     return true;
   } catch (err) {
-    console.error(err);
+    console.error("Firestore Update Error:", err);
     return false;
   }
 }

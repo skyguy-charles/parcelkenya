@@ -1072,18 +1072,22 @@ export default function BookPage({ setPage }) {
   const categorySurcharge = category.surcharge;
   const total = fee + weightCost + categorySurcharge + (form.insurance ? 80 : 0);
 
-  const handleConfirm = () => {
-    saveBooking({
-      id: trackingId.current,
-      form,
-      fee,
-      weightCost,
-      total,
-      status: "pending",
-      createdAt: Date.now(),
-    });
+  const handleConfirm = async () => {
+  const success = await saveBooking({
+    id: trackingId.current,
+    form,
+    fee,
+    weightCost,
+    total,
+    status: "pending",
+  });
+
+  if (success) {
     setStep(4);
-  };
+  } else {
+    alert("Booking failed. Please check your internet connection and try again.");
+  }
+};
 
   const handleNew = () => {
     setForm(INITIAL_FORM_STATE);
