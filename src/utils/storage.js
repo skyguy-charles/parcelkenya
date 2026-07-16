@@ -1,39 +1,55 @@
-// ── SHARED STORAGE ────────────────────────────────────────────
-// Used by both BookPage.jsx and AdminPage.jsx
+import {
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  doc,
+  query,
+  orderBy,
+} from "firebase/firestore";
 
-export function saveBooking(data) {
+import { db } from "../firebase";
+
+// Save booking
+export async function saveBooking(data) {
   try {
-    localStorage.setItem(`booking:${data.id}`, JSON.stringify(data));
+    await addDoc(collection(db, "bookings"), data);
+    return true;
   } catch (err) {
     console.error(err);
+    return false;
   }
 }
 
-export function loadAllBookings() {
+// Load all bookings
+export async function loadAllBookings() {
   try {
-    const results = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith("booking:")) {
-        const val = localStorage.getItem(key);
-        if (val) results.push(JSON.parse(val));
-      }
-    }
-    return results.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    const q = query(
+      collection(db, "bookings"),
+      orderBy("createdAt", "desc")
+    );
+
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+    }));
   } catch (err) {
     console.error(err);
     return [];
   }
 }
 
-export function updateBookingStatus(id, status) {
+// Update booking status
+export async function updateBookingStatus(id, status) {
   try {
-    const key = `booking:${id}`;
-    const val = localStorage.getItem(key);
-    if (!val) return false;
-    const booking = JSON.parse(val);
-    booking.status = status;
-    localStorage.setItem(key, JSON.stringify(booking));
+    const bookingRef = doc(db, "bookings", id);
+
+    await updateDoc(bookingRef, {
+      status,
+    });
+
     return true;
   } catch (err) {
     console.error(err);
